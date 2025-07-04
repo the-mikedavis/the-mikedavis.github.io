@@ -1,7 +1,7 @@
 +++
 title = "\"German string\" optimizations in Spellbook"
 date = 2024-11-03
-taxonomies.tags = ["Rust", "optimization"]
+taxonomies.tags = ["Rust", "optimization", "data structures"]
 
 [extra]
 repo_view = true
