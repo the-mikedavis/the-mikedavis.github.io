@@ -141,8 +141,8 @@ The gist is that we can't return `SparseArray<T>` from any function. This is the
 
 ```rust
 // 💣  &[T] is ok but not [T]
-fn sum<T>(arr: [T]) -> usize {
-    arr.iter().sum()
+fn count<T>(arr: [T]) -> usize {
+    arr.iter().count()
 }
 ```
 
@@ -150,13 +150,13 @@ fn sum<T>(arr: [T]) -> usize {
 error[E0277]: the size for values of type `[T]` cannot be known at compilation time
  --> src/lib.rs:1:16
   |
-1 | fn sum<T>(arr: [T]) -> usize {
+1 | fn count<T>(arr: [T]) -> usize {
   |                ^^^ doesn't have a size known at compile-time
   |
   = help: the trait `Sized` is not implemented for `[T]`
 help: function arguments must have a statically known size, borrowed slices always have a known size
   |
-1 | fn sum<T>(arr: &[T]) -> usize {
+1 | fn count<T>(arr: &[T]) -> usize {
   |   
 ```
 
