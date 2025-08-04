@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<html class="dark light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    
+
+    
+    
+    
+    <title>
+         Uploading a file to S3 without reading it
+        
+    </title>
+
+        
+            <meta property="og:title" content="Uploading a file to S3 without reading it" />
+        
+     
+
+     
+         
+     
+
+     
+         
+    
+
+    
+    
+
+    
+    
+        <link href=https://the-mikedavis.github.io/fonts.css rel="stylesheet" />
+    
+
+    
+    
+
+    
+    
+        <script src=https://the-mikedavis.github.io/js/codeblock.js></script>
+    
+
+    
+    
+        <script src=https://the-mikedavis.github.io/js/toc.js></script>
+    
+    
+    
+    
+
+    
+
+    
+    <link rel="alternate" type="application/atom+xml" title="the-mikedavis" href="https://the-mikedavis.github.io/atom.xml">
+
+
+    
+    
+        <link rel="stylesheet" type="text/css" href=https://the-mikedavis.github.io/theme/light.css />
+        <link id="darkModeStyle" rel="stylesheet" type="text/css" href="https://the-mikedavis.github.io/theme/dark.css" />
+    
+
+    <!-- Set the correct theme in the script -->
+    <script src=https://the-mikedavis.github.io/js/themetoggle.js></script>
+    
+        <script>setTheme(getSavedTheme());</script>
+    
+
+    <link rel="stylesheet" type="text/css" media="screen" href=https://the-mikedavis.github.io/main.css />
+
+    
+</head>
+
+
+<body>
+    <div class="content">
+        <header>
+    <div class="main">
+        <a href=https:&#x2F;&#x2F;the-mikedavis.github.io>the-mikedavis</a>
+
+        <div class="socials">
+            
+            <a rel="me" href="https:&#x2F;&#x2F;github.com&#x2F;the-mikedavis&#x2F;" class="social">
+                <img alt=github src=https://the-mikedavis.github.io/social_icons/github.svg>
+            </a>
+            
+        </div>
+    </div>
+
+    <nav>
+        
+        <a href=https://the-mikedavis.github.io style="margin-left: 0.5em">&#x2F;about</a>
+        
+        <a href=https://the-mikedavis.github.io/posts style="margin-left: 0.5em">&#x2F;posts</a>
+        
+
+        
+        |<a id="dark-mode-toggle" onclick="toggleTheme(); event.preventDefault();" href="#">
+            <img src=https://the-mikedavis.github.io/feather/sun.svg id="sun-icon" style="filter: invert(1);" alt="Light" />
+            <img src=https://the-mikedavis.github.io/feather/moon.svg id="moon-icon" alt="Dark" />
+        </a>
+
+        <!-- Inititialize the theme toggle icons -->
+        <script>updateItemToggleTheme()</script>
+        
+    </nav>
+</header>
+
+
+        
+        
+    
+<main>
+    <article>
+        <div class="title">
+            
+            
+    <div class="page-header">
+        Uploading a file to S3 without reading it<span class="primary-color" style="font-size: 1.6em">.</span>
+    </div>
+
+
+                <div class="meta">
+                    
+                        Posted on <time>2025-08-03</time>
+                    
+
+                    
+
+                    
+
+                    
+                    
+                            <span class="tags-label"> :: Tags:</span>
+                            <span class="tags">
+                                    <a href="https://the-mikedavis.github.io/tags/optimization/" class="post-tag">optimization</a>, 
+                                
+                                    <a href="https://the-mikedavis.github.io/tags/erlang/" class="post-tag">Erlang</a>
+                                
+                            </span>
+                    
+
+                    
+                    
+                        
+                        
+                            
+                        
+
+                        
+                            
+                            :: <a href="https:&#x2F;&#x2F;github.com&#x2F;the-mikedavis&#x2F;the-mikedavis.github.io&#x2F;tree&#x2F;main&#x2F;content&#x2F;posts&#x2F;ktls-sendfile-s3.md" target="_blank" rel="noopener noreferrer"> Source Code</a>
+                        
+                    
+
+                    
+
+                </div>
+        </div>
+
+        
+
+        
+        
+        
+            <div class="toc-container">
+                <h1 class="toc-title">Table of Contents</h1>
+                <ul class="toc-list">
+                    
+                        <li>
+                            <a href="https://the-mikedavis.github.io/posts/ktls-sendfile-s3/#how-you-d-normally-do-it">How you&#x27;d normally do it</a>
+                            
+                        </li>
+                    
+                        <li>
+                            <a href="https://the-mikedavis.github.io/posts/ktls-sendfile-s3/#sendfile-2">sendfile(2)</a>
+                            
+                        </li>
+                    
+                        <li>
+                            <a href="https://the-mikedavis.github.io/posts/ktls-sendfile-s3/#ktls">kTLS</a>
+                            
+                        </li>
+                    
+                        <li>
+                            <a href="https://the-mikedavis.github.io/posts/ktls-sendfile-s3/#ktls-sendfile-2-uploads">kTLS + sendfile(2) uploads</a>
+                            
+                        </li>
+                    
+                        <li>
+                            <a href="https://the-mikedavis.github.io/posts/ktls-sendfile-s3/#is-it-faster">Is it faster?</a>
+                            
+                        </li>
+                    
+                        <li>
+                            <a href="https://the-mikedavis.github.io/posts/ktls-sendfile-s3/#hardware-offload">Hardware offload</a>
+                            
+                        </li>
+                    
+                        <li>
+                            <a href="https://the-mikedavis.github.io/posts/ktls-sendfile-s3/#wrapping-up">Wrapping up</a>
+                            
+                        </li>
+                    
+                </ul>
+            </div>
+        
+        
+
+        <section class="body">
+            <p>This post covers uploading a file to S3. It's pretty simple: make an HTTP/1.1 <code>PUT</code> request and now your file is in <em>the cloud</em> 🪄.</p>
+<p>What could possibly be interesting about something so mundane? Well, we're going to leverage the Linux kernel to do it in an unnecessarily efficient way. (Note: I think FreeBSD also supports this but I haven't tried it.)</p>
+<p>We'll be looking at a novel way - used by no existing AWS SDK clients to my knowledge - to upload to S3.</p>
+<h2 id="how-you-d-normally-do-it"><a class="zola-anchor" href="#how-you-d-normally-do-it" aria-label="Anchor link for: how-you-d-normally-do-it">How you'd normally do it</a></h2>
+<p>AWS S3 has a REST HTTP API which accepts HTTP/1.1. You can add an "object" (basically a file) to the "bucket" (kinda like a file system) with a <a href="https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutObject.html">PutObject</a> request.</p>
+<p>HTTP/1.1 is super simple. To quote <a href="https://www.rfc-editor.org/rfc/rfc7230">RFC 7230</a>, the syntax looks like so:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>HTTP-message   = start-line
+</span><span>                 *( header-field CRLF )
+</span><span>                 CRLF
+</span><span>                 [ message-body ]
+</span></code></pre>
+<p>For example inserting an object could look like this (quoting the AWS documentation):</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>PUT /example-object HTTP/1.1
+</span><span>Host: example-bucket.s3.&lt;Region&gt;.amazonaws.com
+</span><span>Accept: */*
+</span><span>Authorization: &lt;authorization string&gt;
+</span><span>Date: Thu, 22 Sep 2016 21:58:13 GMT
+</span><span>x-amz-tagging: tag1=value1&amp;tag2=value2
+</span><span>
+</span><span>[... bytes of object data] 
+</span></code></pre>
+<p>The <code>start-line</code> is the HTTP method, path, and "HTTP/1.1" all separated by spaces. Then you have a set of headers. Then an empty line and then the body. All of these lines use the CRLF line-ending (<code>\r\n</code>). Open a TLS socket to this S3 endpoint and send that binary data (after TLS encryption) and you can upload to S3.</p>
+<blockquote>
+<p>A quick aside: calculating the authorization header is a little bit involved. I will totally skip over it in this post. The proper docs are <a href="https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-header-based-auth.html">here</a> and a simple Erlang implementation is included in the gist linked later.</p>
+</blockquote>
+<p>In Erlang this might look like so:</p>
+<pre data-lang="erlang" style="background-color:#2b303b;color:#c0c5ce;" class="language-erlang "><code class="language-erlang" data-lang="erlang"><span style="color:#8fa1b3;">upload</span><span>(</span><span style="color:#bf616a;">File</span><span>) -&gt;
+</span><span>    {</span><span style="color:#d08770;">ok</span><span>, </span><span style="color:#bf616a;">Socket</span><span>} = ssl:</span><span style="color:#bf616a;">connect</span><span>(&quot;</span><span style="color:#a3be8c;">s3.us-east-2.amazonaws.com</span><span>&quot;, </span><span style="color:#d08770;">443</span><span>, []),
+</span><span>    </span><span style="color:#65737e;">%% Send an HTTP/1.1 header based on the file&#39;s size (content-length header)
+</span><span>    </span><span style="color:#65737e;">%% and auth parameters like the secret access key.
+</span><span>    </span><span style="color:#d08770;">ok </span><span>= ssl:</span><span style="color:#96b5b4;">send</span><span>(</span><span style="color:#bf616a;">Socket</span><span>, </span><span style="color:#bf616a;">http1_header</span><span>(</span><span style="color:#bf616a;">File</span><span>)),
+</span><span>    </span><span style="color:#65737e;">%% Read the file into memory.
+</span><span>    {</span><span style="color:#d08770;">ok</span><span>, </span><span style="color:#bf616a;">FileContents</span><span>} = </span><span style="color:#bf616a;">file</span><span>:</span><span style="color:#bf616a;">read_file</span><span>(</span><span style="color:#bf616a;">File</span><span>),
+</span><span>    </span><span style="color:#65737e;">%% And then send it on the socket, as the body.
+</span><span>    </span><span style="color:#d08770;">ok </span><span>= ssl:</span><span style="color:#96b5b4;">send</span><span>(</span><span style="color:#bf616a;">Socket</span><span>, </span><span style="color:#bf616a;">FileContents</span><span>),
+</span><span>    </span><span style="color:#65737e;">%% Receiving a response is overrated. Let&#39;s just close the socket.
+</span><span>    ssl:</span><span style="color:#bf616a;">close</span><span>(</span><span style="color:#bf616a;">Socket</span><span>).
+</span></code></pre>
+<p>Erlang has an odd Prolog-like syntax but hopefully you get the gist. We open a connection to S3 and send an HTTP/1.1 PUT request with the file's contents as the HTTP/1.1 body.</p>
+<p>This is nice and straightforward but it means that we need to read the entire file contents into memory in order to upload the file. We could read in smaller chunks or use a chunked transfer-encoding or even a fancy <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/mpuoverview.html">multi-part upload</a>. No matter how we slice it though, we need to read the file into our Erlang program's memory.</p>
+<p>Or do we?!</p>
+<h2 id="sendfile-2"><a class="zola-anchor" href="#sendfile-2" aria-label="Anchor link for: sendfile-2">sendfile(2)</a></h2>
+<p><code>sendfile(2)</code> is a system call which a "userspace" program (a program above the kernel) can use to instruct the kernel to copy the contents of one file descriptor to another. You can use sendfile against a TCP socket to instruct the kernel to write a file's contents to a network connection. The advantage of this is that you don't ever need to read the file contents into a buffer in the Erlang program's memory. It's all up to the kernel to move those bytes around. Especially since Erlang is a garbage-collected language, a program can save some memory and work by using sendfile instead of reading and writing to a socket itself.</p>
+<pre data-lang="erlang" style="background-color:#2b303b;color:#c0c5ce;" class="language-erlang "><code class="language-erlang" data-lang="erlang"><span style="color:#8fa1b3;">upload</span><span>(</span><span style="color:#bf616a;">File</span><span>) -&gt;
+</span><span>    {</span><span style="color:#d08770;">ok</span><span>, </span><span style="color:#bf616a;">Socket</span><span>} = </span><span style="color:#bf616a;">gen_tcp</span><span>:</span><span style="color:#bf616a;">connect</span><span>(&quot;</span><span style="color:#a3be8c;">my-unencrypted-host.example.com</span><span>&quot;, </span><span style="color:#d08770;">80</span><span>, []),
+</span><span>    </span><span style="color:#d08770;">ok </span><span>= </span><span style="color:#bf616a;">gen_tcp</span><span>:</span><span style="color:#96b5b4;">send</span><span>(</span><span style="color:#bf616a;">Socket</span><span>, </span><span style="color:#bf616a;">http1_header</span><span>(</span><span style="color:#bf616a;">File</span><span>)),
+</span><span>    {</span><span style="color:#d08770;">ok</span><span>, </span><span style="color:#bf616a;">_BytesWritten</span><span>} = </span><span style="color:#bf616a;">file</span><span>:</span><span style="color:#bf616a;">sendfile</span><span>(</span><span style="color:#bf616a;">File</span><span>, </span><span style="color:#bf616a;">Socket</span><span>),
+</span><span>    </span><span style="color:#bf616a;">gen_tcp</span><span>:</span><span style="color:#bf616a;">close</span><span>(</span><span style="color:#bf616a;">Socket</span><span>).
+</span></code></pre>
+<p>The rub is that <code>sendfile(2)</code> is a naive way to transfer bytes. It doesn't know about TLS encryption. Bytes are ferried from one file descriptor to the other (maybe a socket) as-is.</p>
+<h2 id="ktls"><a class="zola-anchor" href="#ktls" aria-label="Anchor link for: ktls">kTLS</a></h2>
+<p>Enter kTLS: <em>kernel</em> TLS. After performing a TLS handshake in userspace (your program) you can <em>offload</em> the work of doing TLS encryption and decryption to the kernel by setting options on the socket with the connection's current TLS parameters. This makes things simpler in your userspace program: you don't need to encrypt anything, just send plain text on the socket. The kernel then transparently takes care of everything.</p>
+<p>The really special thing about kTLS, for our purposes, is that it lets us treat a TLS encrypted network connection like a regular old unencrypted socket.</p>
+<h2 id="ktls-sendfile-2-uploads"><a class="zola-anchor" href="#ktls-sendfile-2-uploads" aria-label="Anchor link for: ktls-sendfile-2-uploads">kTLS + sendfile(2) uploads</a></h2>
+<p>The gist of the code using kTLS in Erlang would be:</p>
+<pre data-lang="erlang" style="background-color:#2b303b;color:#c0c5ce;" class="language-erlang "><code class="language-erlang" data-lang="erlang"><span style="color:#8fa1b3;">upload</span><span>(</span><span style="color:#bf616a;">File</span><span>) -&gt;
+</span><span>    </span><span style="color:#65737e;">%% Same as before: make a TLS handshake in userspace.
+</span><span>    {</span><span style="color:#d08770;">ok</span><span>, </span><span style="color:#bf616a;">SslSocket</span><span>} = ssl:</span><span style="color:#bf616a;">connect</span><span>(&quot;</span><span style="color:#a3be8c;">s3.us-east-2.amazonaws.com</span><span>&quot;, </span><span style="color:#d08770;">443</span><span>, [{</span><span style="color:#a3be8c;">ktls</span><span>, </span><span style="color:#d08770;">true</span><span>}]),
+</span><span>    </span><span style="color:#65737e;">%% Then handover TLS responsibilities to the kernel.
+</span><span>    </span><span style="color:#bf616a;">Socket </span><span>= </span><span style="color:#bf616a;">do_ktls_handover</span><span>(</span><span style="color:#bf616a;">SslSocket</span><span>),
+</span><span>    </span><span style="color:#65737e;">%% Now our socket is a regular old TCP socket! Unencrypted
+</span><span>    </span><span style="color:#65737e;">%% as far as we know!
+</span><span>    </span><span style="color:#d08770;">ok </span><span>= </span><span style="color:#bf616a;">gen_tcp</span><span>:</span><span style="color:#96b5b4;">send</span><span>(</span><span style="color:#bf616a;">Socket</span><span>, </span><span style="color:#bf616a;">header</span><span>(</span><span style="color:#bf616a;">File</span><span>)),
+</span><span>    {</span><span style="color:#d08770;">ok</span><span>, </span><span style="color:#bf616a;">_BytesWritten</span><span>} = </span><span style="color:#bf616a;">file</span><span>:</span><span style="color:#bf616a;">sendfile</span><span>(</span><span style="color:#bf616a;">File</span><span>, </span><span style="color:#bf616a;">Socket</span><span>),
+</span><span>    </span><span style="color:#bf616a;">gen_tcp</span><span>:</span><span style="color:#bf616a;">close</span><span>(</span><span style="color:#bf616a;">Socket</span><span>).
+</span></code></pre>
+<p>I'm glossing over the details of the kTLS handover here intentionally. It's not well supported by Erlang yet and I even needed to patch Erlang to support the cipher currently negotiated by the S3 servers. For a full example see <a href="https://gist.github.com/the-mikedavis/ceb1a246cdb03cb508bdf90382b6e162">this gist</a>.</p>
+<h2 id="is-it-faster"><a class="zola-anchor" href="#is-it-faster" aria-label="Anchor link for: is-it-faster">Is it faster?</a></h2>
+<p>No! Actually I see the userspace and kernel versions of these uploads taking a very similar amount of time on the same size file (around 500 MiB). The optimization of <code>sendfile(2)</code> is not speed so much as memory. We avoid reading the file at all and instead let the kernel do it. So we need fancier system-wide benchmarks rather than a simple "upload time." In fact we can't even realize the full gains of this method without specialized hardware. (More below...)</p>
+<p>But to quote Joe Armstrong in <em>Erlang and OTP in Action</em>:</p>
+<blockquote>
+<p>Make it work, then make it beautiful, then if you really, really have to, make it fast. 90 percent of the time, if you make it beautiful, it will already be fast. So really, just make it beautiful!</p>
+</blockquote>
+<p>We've completely avoided TLS encryption and file reads in the userspace, and I think that's beautiful. I'm sure it's also performant in a loaded system, but I'll need to revisit this post with numbers when I can actually measure it.</p>
+<p>In the meantime, we can talk about making it more beautiful.</p>
+<h2 id="hardware-offload"><a class="zola-anchor" href="#hardware-offload" aria-label="Anchor link for: hardware-offload">Hardware offload</a></h2>
+<p>The Linux kernel docs discuss a really juicy optimization: <a href="https://docs.kernel.org/networking/tls.html#tls-tx-zerocopy-ro">zero-copy sendfile</a>.</p>
+<p>When kTLS is enabled, the encryption does not necessarily need to be done by the kernel itself. Instead, the kernel might pawn off job of encrypting data to the Network Interface Controller (NIC, also known as "network card"), if the NIC has the hardware-level support for doing the encryption itself. This means that instead of the encryption being done by your CPU on your RAM, the NIC takes care of everything. This lets the kernel treat the call to <code>sendfile(2)</code> as if it were a <code>sendfile(2)</code> call against a regular, unencrypted TCP socket. The kernel can send the bytes without any extra buffering for encryption.</p>
+<p>The are some limitations to this approach: namely that the file can't be modified between the beginning and end of <code>sendfile(2)</code>. For cases where files are immutable once closed, though, as they might be when you upload them to S3, this is perfectly fine.</p>
+<h2 id="wrapping-up"><a class="zola-anchor" href="#wrapping-up" aria-label="Anchor link for: wrapping-up">Wrapping up</a></h2>
+<p>This was a quick look at using kTLS and <code>sendfile(2)</code> to upload files to S3 as efficiently as theoretically possible. I hope to revisit this post later with numbers and graphs showing how this impacts an actual system.</p>
+<p>In the meantime here are a bunch of links for further reading:</p>
+<ul>
+<li><a href="https://erlangforums.com/t/introduce-kernel-tls-in-ssl-application/952">https://erlangforums.com/t/introduce-kernel-tls-in-ssl-application/952</a></li>
+<li><a href="https://github.com/erlang/otp/pull/6104">https://github.com/erlang/otp/pull/6104</a></li>
+<li><a href="https://delthas.fr/blog/2023/kernel-tls/">https://delthas.fr/blog/2023/kernel-tls/</a></li>
+<li><a href="https://netdevconf.org/1.2/papers/ktls.pdf">https://netdevconf.org/1.2/papers/ktls.pdf</a></li>
+<li><a href="https://netdevconf.info//0x14/pub/slides/25/TLS%20Perf%20Characterization%20slides%20-%20Netdev%200x14%20v2.pdf">https://netdevconf.info//0x14/pub/slides/25/TLS%20Perf%20Characterization%20slides%20-%20Netdev%200x14%20v2.pdf</a></li>
+</ul>
+
+        </section>
+    </article>
+</main>
+
+
+
+        
+            
+        
+
+        
+    </div>
+</body>
+
+</html>

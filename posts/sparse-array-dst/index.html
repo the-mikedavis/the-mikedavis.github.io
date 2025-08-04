@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<html class="dark light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    
+
+    
+    
+    
+    <title>
+         Sparse arrays in Rust and creating custom DSTs
+        
+    </title>
+
+        
+            <meta property="og:title" content="Sparse arrays in Rust and creating custom DSTs" />
+        
+     
+
+     
+         
+     
+
+     
+         
+    
+
+    
+    
+
+    
+    
+        <link href=https://the-mikedavis.github.io/fonts.css rel="stylesheet" />
+    
+
+    
+    
+
+    
+    
+        <script src=https://the-mikedavis.github.io/js/codeblock.js></script>
+    
+
+    
+    
+        <script src=https://the-mikedavis.github.io/js/toc.js></script>
+    
+    
+    
+    
+
+    
+
+    
+    <link rel="alternate" type="application/atom+xml" title="the-mikedavis" href="https://the-mikedavis.github.io/atom.xml">
+
+
+    
+    
+        <link rel="stylesheet" type="text/css" href=https://the-mikedavis.github.io/theme/light.css />
+        <link id="darkModeStyle" rel="stylesheet" type="text/css" href="https://the-mikedavis.github.io/theme/dark.css" />
+    
+
+    <!-- Set the correct theme in the script -->
+    <script src=https://the-mikedavis.github.io/js/themetoggle.js></script>
+    
+        <script>setTheme(getSavedTheme());</script>
+    
+
+    <link rel="stylesheet" type="text/css" media="screen" href=https://the-mikedavis.github.io/main.css />
+
+    
+</head>
+
+
+<body>
+    <div class="content">
+        <header>
+    <div class="main">
+        <a href=https:&#x2F;&#x2F;the-mikedavis.github.io>the-mikedavis</a>
+
+        <div class="socials">
+            
+            <a rel="me" href="https:&#x2F;&#x2F;github.com&#x2F;the-mikedavis&#x2F;" class="social">
+                <img alt=github src=https://the-mikedavis.github.io/social_icons/github.svg>
+            </a>
+            
+        </div>
+    </div>
+
+    <nav>
+        
+        <a href=https://the-mikedavis.github.io style="margin-left: 0.5em">&#x2F;about</a>
+        
+        <a href=https://the-mikedavis.github.io/posts style="margin-left: 0.5em">&#x2F;posts</a>
+        
+
+        
+        |<a id="dark-mode-toggle" onclick="toggleTheme(); event.preventDefault();" href="#">
+            <img src=https://the-mikedavis.github.io/feather/sun.svg id="sun-icon" style="filter: invert(1);" alt="Light" />
+            <img src=https://the-mikedavis.github.io/feather/moon.svg id="moon-icon" alt="Dark" />
+        </a>
+
+        <!-- Inititialize the theme toggle icons -->
+        <script>updateItemToggleTheme()</script>
+        
+    </nav>
+</header>
+
+
+        
+        
+    
+<main>
+    <article>
+        <div class="title">
+            
+            
+    <div class="page-header">
+        Sparse arrays in Rust and creating custom DSTs<span class="primary-color" style="font-size: 1.6em">.</span>
+    </div>
+
+
+                <div class="meta">
+                    
+                        Posted on <time>2025-07-04</time>
+                    
+
+                    
+
+                    
+
+                    
+                    
+                            <span class="tags-label"> :: Tags:</span>
+                            <span class="tags">
+                                    <a href="https://the-mikedavis.github.io/tags/rust/" class="post-tag">Rust</a>, 
+                                
+                                    <a href="https://the-mikedavis.github.io/tags/data-structures/" class="post-tag">data structures</a>
+                                
+                            </span>
+                    
+
+                    
+                    
+                        
+                        
+                            
+                        
+
+                        
+                            
+                            :: <a href="https:&#x2F;&#x2F;github.com&#x2F;the-mikedavis&#x2F;the-mikedavis.github.io&#x2F;tree&#x2F;main&#x2F;content&#x2F;posts&#x2F;sparse-array-dst.md" target="_blank" rel="noopener noreferrer"> Source Code</a>
+                        
+                    
+
+                    
+
+                </div>
+        </div>
+
+        
+
+        
+        
+        
+            <div class="toc-container">
+                <h1 class="toc-title">Table of Contents</h1>
+                <ul class="toc-list">
+                    
+                        <li>
+                            <a href="https://the-mikedavis.github.io/posts/sparse-array-dst/#dynamically-sized-types">Dynamically sized types</a>
+                            
+                        </li>
+                    
+                        <li>
+                            <a href="https://the-mikedavis.github.io/posts/sparse-array-dst/#dsts-in-the-wild">DSTs in the wild</a>
+                            
+                        </li>
+                    
+                        <li>
+                            <a href="https://the-mikedavis.github.io/posts/sparse-array-dst/#an-application-sparse-arrays">An application: sparse arrays</a>
+                            
+                        </li>
+                    
+                        <li>
+                            <a href="https://the-mikedavis.github.io/posts/sparse-array-dst/#fighting-for-a-dst-a-fool-s-errand">Fighting for a DST - a fool&#x27;s errand</a>
+                            
+                        </li>
+                    
+                        <li>
+                            <a href="https://the-mikedavis.github.io/posts/sparse-array-dst/#the-workaround-pointers">The workaround: pointers</a>
+                            
+                                <ul>
+                                    
+                                        <li>
+                                            <a href="https://the-mikedavis.github.io/posts/sparse-array-dst/#the-type">The type</a>
+                                        </li>
+
+                                        
+                                    
+                                        <li>
+                                            <a href="https://the-mikedavis.github.io/posts/sparse-array-dst/#accessing-the-bitmap-and-entries">Accessing the bitmap and entries</a>
+                                        </li>
+
+                                        
+                                    
+                                        <li>
+                                            <a href="https://the-mikedavis.github.io/posts/sparse-array-dst/#allocating-the-sparse-array">Allocating the sparse array</a>
+                                        </li>
+
+                                        
+                                    
+                                        <li>
+                                            <a href="https://the-mikedavis.github.io/posts/sparse-array-dst/#default">Default</a>
+                                        </li>
+
+                                        
+                                    
+                                        <li>
+                                            <a href="https://the-mikedavis.github.io/posts/sparse-array-dst/#clone">Clone</a>
+                                        </li>
+
+                                        
+                                    
+                                        <li>
+                                            <a href="https://the-mikedavis.github.io/posts/sparse-array-dst/#drop">Drop</a>
+                                        </li>
+
+                                        
+                                    
+                                </ul>
+                            
+                        </li>
+                    
+                        <li>
+                            <a href="https://the-mikedavis.github.io/posts/sparse-array-dst/#wrapping-up">Wrapping up</a>
+                            
+                        </li>
+                    
+                </ul>
+            </div>
+        
+        
+
+        <section class="body">
+            <p><a href="https://doc.rust-lang.org/reference/dynamically-sized-types.html">Dynamically sized types</a> (DSTs) are one of a few <em><a href="https://doc.rust-lang.org/nomicon/exotic-sizes.html">exotically sized</a></em> Rust types. Rust and its standard library have good tools for creating regular sized types but creating dynamically sized types can be a pain.</p>
+<p>We'll jump through DSTs quickly and look at an application - <em>sparse arrays</em> - to see how tricky DSTs are today.</p>
+<p>While creating a DST I was surprised at the lack of resources on DST creation and use. This post is meant as a reference for anyone retracing my steps, or as an informative look into a trickier part of data structure implementation in Rust.</p>
+<p>This post is meant for those interested in data structure design in Rust and, to get the most out of this post, you should already be familiar with the concept of a DST. Otherwise this post may be a bit in-the-weeds - but hopefully still valuable.</p>
+<h3 id="dynamically-sized-types"><a class="zola-anchor" href="#dynamically-sized-types" aria-label="Anchor link for: dynamically-sized-types">Dynamically sized types</a></h3>
+<p>DSTs are special because the compiler doesn't know how large they are at runtime. Take a regular <em>sized</em> type:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">struct </span><span>Color {
+</span><span>    </span><span style="color:#bf616a;">red</span><span>: </span><span style="color:#b48ead;">u8</span><span>,
+</span><span>    </span><span style="color:#bf616a;">green</span><span>: </span><span style="color:#b48ead;">u8</span><span>,
+</span><span>    </span><span style="color:#bf616a;">blue</span><span>: </span><span style="color:#b48ead;">u8</span><span>,
+</span><span>}
+</span></code></pre>
+<p>The compiler knows the size of this type. It's the sum of it's fields, 3 bytes.</p>
+<p>What about <code>[u8]</code> though, how many bytes are in that? If it's not a constant-sized array like <code>[u8; 3]</code> then you don't know at compile-time.</p>
+<h3 id="dsts-in-the-wild"><a class="zola-anchor" href="#dsts-in-the-wild" aria-label="Anchor link for: dsts-in-the-wild">DSTs in the wild</a></h3>
+<p>The two common types of DSTs you may have seen are <code>str</code> and <code>[T]</code>. In fact <code>str</code> is just <code>[u8]</code> that's guaranteed to be UTF-8 so let's just say <code>[T]</code>.</p>
+<p>Unlike <code>[T; 5]</code>, <code>[T]</code> has an unknown number of <code>T</code>s. In practice you've probably seen this type borrowed: <code>&amp;[T]</code>. There are also owned versions: <code>Box&lt;[T]&gt;</code>, <code>Rc&lt;[T]&gt;</code>, <code>Arc&lt;[T]&gt;</code> and similar.</p>
+<p>The borrowed version is intuitive: you have a reference to some consecutive elements in an array allocation. A <code>&amp;[T]</code> is a slice of some number of elements of a <code>Vec&lt;T&gt;</code> (or similar array allocation). And a <code>&amp;str</code> is a slice of some valid UTF-8 bytes of a <code>String</code> (<code>String</code> is just a <code>Vec&lt;u8&gt;</code> that is valid UTF-8).</p>
+<p>The owned ones are not much different. They're really just owned: the data is on the heap and the type represents a pointer to it which has ownership of the allocated data. The trick, though, is that these types are <em>wider</em> than usual:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#65737e;">// NOTE: doesn&#39;t matter what type `T` is.
+</span><span>assert_eq!(size_of::&lt;Box&lt;[T]&gt;&gt;(), </span><span style="color:#d08770;">2 </span><span>* size_of::&lt;</span><span style="color:#b48ead;">usize</span><span>&gt;());
+</span><span style="color:#65737e;">// Same with the borrowed kind
+</span><span>assert_eq!(size_of::&lt;&amp;[T]&gt;(), </span><span style="color:#d08770;">2 </span><span>* size_of::&lt;</span><span style="color:#b48ead;">usize</span><span>&gt;());
+</span></code></pre>
+<p>If it were just a pointer it would be the same size as a <code>usize</code>: a machine word, the size of a pointer by definition. Instead <code>Box&lt;[T]&gt;</code> and friends take two words to represent. One word is the pointer to the data and the other is the length of the slice.</p>
+<h3 id="an-application-sparse-arrays"><a class="zola-anchor" href="#an-application-sparse-arrays" aria-label="Anchor link for: an-application-sparse-arrays">An application: sparse arrays</a></h3>
+<p>I'll be talking about sparse arrays as they are used in the use-case I'm interested in: <a href="https://en.wikipedia.org/wiki/Hash_array_mapped_trie">Hash Array Mapped Trie</a>s. In this context, a sparse array is an array - a contiguous sequence of values - where you expect a "sparse" number (i.e. few) entries to actually be used. The rest of the slots are left uninitialized or as defaults.</p>
+<p>If you're familiar with <code>MaybeUninit&lt;T&gt;</code>, a sparse array is conceptually like <code>[MaybeUninit&lt;T&gt;; N]</code>. The upside of sparse arrays is that you don't pay the cost of representing uninitialized slots.</p>
+<p>Say you have a <code>[T; 64]</code> - 64 <code>T</code>s, stored contiguously in memory. If only some of these are initialized or meaningful then you waste a lot of space representing the entire array. Only utilizing some small <code>N</code> indices of this array leaves <code>64 - N</code> slots wasted. When you have very many of these arrays or when <code>size_of::&lt;T&gt;()</code> is large, wasted <code>T</code> allocations can add up.</p>
+<p>Sparse arrays cut down on this wasted space by only allocating enough space to store occupied slots. Then a header is used to determine which indexes into the array are occupied by which slots. For Hash Array Mapped Tries, the layout looks like this:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[</span><span style="color:#bf616a;">derive</span><span>(Clone, Copy, PartialEq, Eq)]
+</span><span>#[</span><span style="color:#bf616a;">repr</span><span>(transparent)]
+</span><span style="color:#b48ead;">struct </span><span>Bitmap(</span><span style="color:#b48ead;">u64</span><span>);
+</span><span>
+</span><span>#[</span><span style="color:#bf616a;">repr</span><span>(C)]
+</span><span style="color:#b48ead;">struct </span><span>SparseArray&lt;T&gt; {
+</span><span>    </span><span style="color:#bf616a;">bitmap</span><span>: Bitmap,
+</span><span>    </span><span style="color:#bf616a;">entries</span><span>: [T],
+</span><span>}
+</span></code></pre>
+<p>At the beginning of this type, a 64-bit bitmap describes which entries are set in the dynamically sized array, and which indexes into the <code>SparseArray</code> correspond to which index in <code>entries</code>. With this layout, setting index <code>5</code> to <code>100</code> and <code>10</code> to <code>200</code> means that the 5th and 10th bit of the bitmap are set and the entries array is allocated with <code>100</code> and then <code>200</code>.</p>
+<p>You can imagine an empty sparse array as just the bitmap:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>+------+
+</span><span>+ 0000 +
+</span><span>+------+
+</span></code></pre>
+<p>And then a sparse array with elements at index 0 and 3 could be:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>+------+------+------+
+</span><span>+ 1001 +  T   +  T   +
+</span><span>+------+------+------+
+</span></code></pre>
+<p>This use-case fits a dynamically sized type well: the true size of the type depends on its value at runtime. The number of bits set in the bitmap is the number of entries in <code>entries</code>.</p>
+<p>This takes a fixed size of overhead for every sparse array, but you don't pay for allocating uninitialized or meaningless entries.</p>
+<p>This post skips over the implications of inserting or deleting an element (resizing the sparse array) and other interesting features. I will cover Hash Array Mapped Tries in part two of this post. Instead here we'll talk about how implementing this type - and using it - is a pain, and how we can make our lives easier by just giving up and dealing with pointers.</p>
+<h3 id="fighting-for-a-dst-a-fool-s-errand"><a class="zola-anchor" href="#fighting-for-a-dst-a-fool-s-errand" aria-label="Anchor link for: fighting-for-a-dst-a-fool-s-errand">Fighting for a DST - a fool's errand</a></h3>
+<p>My first implementation of this type looked just like the above <code>SparseArray&lt;T&gt;</code>:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[</span><span style="color:#bf616a;">repr</span><span>(C)]
+</span><span style="color:#b48ead;">struct </span><span>SparseArray&lt;T&gt; {
+</span><span>    </span><span style="color:#bf616a;">bitmap</span><span>: Bitmap,
+</span><span>    </span><span style="color:#bf616a;">entries</span><span>: [T],
+</span><span>}
+</span></code></pre>
+<p>Note that <code>entries: [T]</code> is what makes it a DST and will bring us much pain. (As a peculiarity of custom DSTs, it must be the last field which is a DST. A DST anywhere else is an error.) The compiler can see from <code>[T]</code> that we're dealing with an "unsized" type (<code>?Sized</code>) and will let us know in future error messages.</p>
+<p>We'll start with making an empty <code>SparseArray</code>.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">impl </span><span>Bitmap {
+</span><span>    </span><span style="color:#65737e;">// No bits set means no entries.
+</span><span>    </span><span style="color:#b48ead;">const </span><span style="color:#d08770;">EMPTY</span><span>: </span><span style="color:#b48ead;">Self </span><span>= </span><span style="color:#b48ead;">Self</span><span>(</span><span style="color:#d08770;">0</span><span>);
+</span><span>}
+</span><span>
+</span><span style="color:#b48ead;">impl</span><span>&lt;T&gt; SparseArray&lt;T&gt; {
+</span><span>    </span><span style="color:#b48ead;">pub fn </span><span style="color:#8fa1b3;">empty</span><span>() -&gt; </span><span style="color:#b48ead;">Self </span><span>{
+</span><span>        </span><span style="color:#b48ead;">Self </span><span>{ bitmap: Bitmap::</span><span style="color:#d08770;">EMPTY</span><span>, entries: [] }
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>But already we run into trouble:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>error[E0277]: the size for values of type `[T]` cannot be known at compilation time
+</span><span>  --&gt; src/lib.rs:15:23
+</span><span>   |
+</span><span>15 |     pub fn empty() -&gt; Self {
+</span><span>   |                       ^^^^ doesn&#39;t have a size known at compile-time
+</span><span>   |
+</span><span>   = help: within `SparseArray&lt;T&gt;`, the trait `Sized` is not implemented for `[T]`
+</span></code></pre>
+<p>The gist is that we can't return <code>SparseArray&lt;T&gt;</code> from any function. This is the same for familiar DSTs too: you can't have a variable bound to some <code>[T]</code>. Instead you always work in terms of <code>&amp;[T]</code> or <code>Box&lt;[T]&gt;</code> (or similar owned wrapper).</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#65737e;">// 💣  &amp;[T] is ok but not [T]
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">count</span><span>&lt;T&gt;(</span><span style="color:#bf616a;">arr</span><span>: [T]) -&gt; </span><span style="color:#b48ead;">usize </span><span>{
+</span><span>    arr.</span><span style="color:#96b5b4;">iter</span><span>().</span><span style="color:#96b5b4;">count</span><span>()
+</span><span>}
+</span></code></pre>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>error[E0277]: the size for values of type `[T]` cannot be known at compilation time
+</span><span> --&gt; src/lib.rs:1:16
+</span><span>  |
+</span><span>1 | fn count&lt;T&gt;(arr: [T]) -&gt; usize {
+</span><span>  |                ^^^ doesn&#39;t have a size known at compile-time
+</span><span>  |
+</span><span>  = help: the trait `Sized` is not implemented for `[T]`
+</span><span>help: function arguments must have a statically known size, borrowed slices always have a known size
+</span><span>  |
+</span><span>1 | fn count&lt;T&gt;(arr: &amp;[T]) -&gt; usize {
+</span><span>  |   
+</span></code></pre>
+<p>A consequence of being unable to return <code>Self</code> is that we can't implement useful traits like <code>Clone</code> and <code>Default</code>. So already we are drifting away from the the nice tools available for sized types.</p>
+<p>The solution here? Return an owned type wrapping <code>SparseArray</code>. Like mentioned above we can use a <code>Box&lt;Self&gt;</code>, <code>Rc&lt;Self&gt;</code>, <code>Arc&lt;Self&gt;</code> or anything similar. I'll use <code>Box&lt;Self&gt;</code> here for simplicity, though eventually I want an <code>Arc</code> to make this data structure persistent and thread-safe.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">use </span><span>std::{
+</span><span>    alloc::{</span><span style="color:#bf616a;">self</span><span>, Layout},
+</span><span>    ptr::{</span><span style="color:#bf616a;">self</span><span>, NonNull},
+</span><span>};
+</span><span>
+</span><span style="color:#b48ead;">impl </span><span>Bitmap {
+</span><span>    </span><span style="color:#b48ead;">const fn </span><span style="color:#8fa1b3;">len</span><span>(&amp;</span><span style="color:#bf616a;">self</span><span>) -&gt; </span><span style="color:#b48ead;">usize </span><span>{
+</span><span>        </span><span style="color:#bf616a;">self</span><span>.</span><span style="color:#d08770;">0.</span><span style="color:#96b5b4;">count_ones</span><span>() as </span><span style="color:#b48ead;">usize
+</span><span>    }
+</span><span>}
+</span><span>
+</span><span style="color:#b48ead;">impl</span><span>&lt;T&gt; SparseArray&lt;T&gt; {
+</span><span>    </span><span style="color:#b48ead;">pub fn </span><span style="color:#8fa1b3;">empty</span><span>() -&gt; Box&lt;SparseArray&lt;T&gt;&gt; {
+</span><span>        </span><span style="color:#b48ead;">let</span><span> bitmap = Bitmap::</span><span style="color:#d08770;">EMPTY</span><span>;
+</span><span>        </span><span style="color:#b48ead;">let</span><span> layout = </span><span style="color:#b48ead;">Self</span><span>::layout(bitmap.</span><span style="color:#96b5b4;">len</span><span>());
+</span><span>        </span><span style="color:#b48ead;">let</span><span> nullable = </span><span style="color:#b48ead;">unsafe </span><span>{ alloc::alloc(layout) };
+</span><span>        </span><span style="color:#b48ead;">let</span><span> ptr = </span><span style="color:#b48ead;">match </span><span>NonNull::new(nullable) {
+</span><span>            Some(ptr) =&gt; ptr.</span><span style="color:#96b5b4;">as_ptr</span><span>(),
+</span><span>            None =&gt; alloc::handle_alloc_error(layout),
+</span><span>        };
+</span><span>        </span><span style="color:#65737e;">// This is necessary in order to be able to cast!!
+</span><span>        </span><span style="color:#b48ead;">let</span><span> ptr = ptr::slice_from_raw_parts_mut(ptr, len) as </span><span style="color:#b48ead;">*mut Self</span><span>;
+</span><span>
+</span><span>        </span><span style="color:#b48ead;">unsafe </span><span>{ (&amp;raw </span><span style="color:#b48ead;">mut </span><span>((*ptr).bitmap)).</span><span style="color:#96b5b4;">write</span><span>(bitmap) }
+</span><span>        </span><span style="color:#65737e;">// TODO: we&#39;d then write entries, if there were any.
+</span><span>        </span><span style="color:#b48ead;">unsafe </span><span>{ Box::from_raw(ptr) }
+</span><span>    }
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">layout</span><span>(</span><span style="color:#bf616a;">len</span><span>: </span><span style="color:#b48ead;">usize</span><span>) -&gt; Layout {
+</span><span>        Layout::new::&lt;Bitmap&gt;()
+</span><span>            .</span><span style="color:#96b5b4;">extend</span><span>(Layout::array::&lt;T&gt;(len).</span><span style="color:#96b5b4;">unwrap</span><span>())
+</span><span>            .</span><span style="color:#96b5b4;">unwrap</span><span>()
+</span><span>            .</span><span style="color:#d08770;">0
+</span><span>            .</span><span style="color:#96b5b4;">pad_to_align</span><span>()
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>Reaching into pointer and allocation stuff from <code>std::alloc</code> and <code>std::ptr</code> may look a little ham-fisted but it's not necessarily unusual for data structure implementations. The part of this that was unfamiliar to me was <a href="https://doc.rust-lang.org/std/ptr/fn.slice_from_raw_parts.html"><code>std::ptr::slice_from_raw_parts_mut</code></a>. This is one of the standard library's few utilities for working with dynamically sized types. The important part about this function is that it forms a possibly wide pointer based on the metadata (second argument). A <em>wide pointer</em> describes the pointer itself along with some metadata like the number of elements in a <code>[T]</code>.</p>
+<p>So with <code>empty</code> or <code>new</code>, <code>Box&lt;SparseArray&lt;T&gt;&gt;</code> actually ends up as <code>size_of::&lt;usize&gt;() * 2</code>. One word holds the pointer to the DST and another holds the length of <code>entries</code>. Unfortunately this is using extra space to encode data that we already know. The number of entries can be computed from the bitmap by counting the number of 1 bits, either through CPU-specific instructions, a series of shifts or SIMD.</p>
+<p>Already I don't like adding unnecessary data just to track the DST. And as mentioned above, we're fighting common traits. If we try to reimplement <code>Clone</code>:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">impl</span><span>&lt;T: Clone&gt; SparseArray&lt;T&gt; {
+</span><span>    </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">clone</span><span>(</span><span style="color:#bf616a;">this</span><span>: &amp;</span><span style="color:#b48ead;">Self</span><span>) -&gt; Box&lt;</span><span style="color:#b48ead;">Self</span><span>&gt; {
+</span><span>        </span><span style="color:#65737e;">// TODO: `new` is like `empty` but writes the `entries` too
+</span><span>        </span><span style="color:#65737e;">// based on the iterator
+</span><span>        </span><span style="color:#b48ead;">Self</span><span>::new(this.bitmap, this.entries.</span><span style="color:#96b5b4;">iter</span><span>().</span><span style="color:#96b5b4;">cloned</span><span>())
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>This doesn't look very much like a regular <code>impl Clone for T</code>. And to call it we need to use <code>SparseArray::clone(&amp;my_sparse_array)</code> :/. We've left familiar Rust ergonomics!</p>
+<h3 id="the-workaround-pointers"><a class="zola-anchor" href="#the-workaround-pointers" aria-label="Anchor link for: the-workaround-pointers">The workaround: pointers</a></h3>
+<p>We're straying from the niceties of sized types and that leaves us doing un-ergonomic stuff. Can we make things simpler for ourselves, and maybe avoid that extra wide-pointer overhead, please?</p>
+<h4 id="the-type"><a class="zola-anchor" href="#the-type" aria-label="Anchor link for: the-type">The type</a></h4>
+<p><code>entries: [T]</code> is a problem because it's a DST. Let's replace it with a sized type... <code>[T; 0]</code>.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">impl </span><span>Bitmap {
+</span><span>    </span><span style="color:#b48ead;">const </span><span style="color:#d08770;">MAX_ENTRIES</span><span>: </span><span style="color:#b48ead;">usize </span><span>= </span><span style="color:#b48ead;">u64</span><span>::</span><span style="color:#d08770;">BITS
+</span><span>}
+</span><span>
+</span><span>#[</span><span style="color:#bf616a;">repr</span><span>(C)]
+</span><span style="color:#b48ead;">struct </span><span>SparseArrayInner&lt;T&gt; {
+</span><span>    </span><span style="color:#bf616a;">bitmap</span><span>: Bitmap,
+</span><span>    </span><span style="color:#65737e;">// HEY! This location is a sequence of `0..Bitmap::MAX_ENTRIES`
+</span><span>    </span><span style="color:#65737e;">// `T`s. `read`/`write` it accordingly!!
+</span><span>    </span><span style="color:#bf616a;">entries</span><span>: [T; 0],
+</span><span>}
+</span><span>
+</span><span style="color:#b48ead;">pub struct </span><span>SparseArray&lt;T&gt;(NonNull&lt;SparseArrayInner&lt;T&gt;&gt;);
+</span></code></pre>
+<p>Now <code>SparseArray&lt;T&gt;</code> is a pointer to some allocated type and we've chosen to hide the actual size of <code>SparseArrayInner</code> from the compiler. The tradeoff is that we are now responsible for allocating the data and accessing it appropriately. And now <code>SparseArray&lt;T&gt;</code> is a sized type: <code>NonNull&lt;T&gt;</code> is a pointer and we know the size of a pointer statically.</p>
+<h4 id="accessing-the-bitmap-and-entries"><a class="zola-anchor" href="#accessing-the-bitmap-and-entries" aria-label="Anchor link for: accessing-the-bitmap-and-entries">Accessing the bitmap and entries</a></h4>
+<p>If the <code>SparseArray&lt;T&gt;</code> type is a pointer to the inner type, we can read that pointer to get the <code>Bitmap</code> and <code>&amp;[T]</code>.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">impl</span><span>&lt;T&gt; SparseArray&lt;T&gt; {
+</span><span>    </span><span style="color:#b48ead;">pub fn </span><span style="color:#8fa1b3;">bitmap</span><span>(&amp;</span><span style="color:#bf616a;">self</span><span>) -&gt; Bitmap {
+</span><span>        </span><span style="color:#b48ead;">unsafe </span><span>{ </span><span style="color:#bf616a;">self</span><span>.</span><span style="color:#d08770;">0.</span><span style="color:#96b5b4;">read</span><span>() }.bitmap
+</span><span>    }
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">pub fn </span><span style="color:#8fa1b3;">entries</span><span>(&amp;</span><span style="color:#bf616a;">self</span><span>) -&gt; &amp;[T] {
+</span><span>        </span><span style="color:#b48ead;">let</span><span> len = </span><span style="color:#bf616a;">self</span><span>.</span><span style="color:#96b5b4;">bitmap</span><span>().</span><span style="color:#96b5b4;">len</span><span>();
+</span><span>        </span><span style="color:#b48ead;">let</span><span> ptr = </span><span style="color:#b48ead;">unsafe </span><span>{ &amp;raw </span><span style="color:#b48ead;">const </span><span>(*</span><span style="color:#bf616a;">self</span><span>.</span><span style="color:#d08770;">0.</span><span style="color:#96b5b4;">as_ptr</span><span>()).entries }.cast::&lt;T&gt;();
+</span><span>        </span><span style="color:#b48ead;">unsafe </span><span>{ std::slice::from_raw_parts(ptr, len) }
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>In <code>SparseArray::entries</code> we cast the pointer to the entries, <code>*const [T; 0]</code>, to be a <code>*const T</code>. This lets us create a slice from it. The safety docs for <code>slice::from_raw_parts</code> say that the pointer must be valid for a read of <code>len</code> <code>T</code>s. As long as we allocate and initialize those entries then we're good to go.</p>
+<h4 id="allocating-the-sparse-array"><a class="zola-anchor" href="#allocating-the-sparse-array" aria-label="Anchor link for: allocating-the-sparse-array">Allocating the sparse array</a></h4>
+<p>Let's rewrite <code>SparseArray::new</code> from above to allocate the memory, but then cast it as a <code>SparseArrayInner&lt;T&gt;</code> rather than deal with <code>ptr::slice_from_raw_parts_mut</code>.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">impl</span><span>&lt;T&gt; SparseArray&lt;T&gt; {
+</span><span>    </span><span style="color:#b48ead;">pub fn </span><span style="color:#8fa1b3;">new</span><span>&lt;I: IntoIterator&lt;Item = T&gt;&gt;(</span><span style="color:#bf616a;">bitmap</span><span>: Bitmap, </span><span style="color:#bf616a;">entries</span><span>: I) -&gt; </span><span style="color:#b48ead;">Self </span><span>{
+</span><span>        </span><span style="color:#b48ead;">let</span><span> len = bitmap.</span><span style="color:#96b5b4;">len</span><span>();
+</span><span>        </span><span style="color:#b48ead;">let</span><span> layout = </span><span style="color:#b48ead;">Self</span><span>::layout(len);
+</span><span>        </span><span style="color:#b48ead;">let</span><span> nullable = </span><span style="color:#b48ead;">unsafe </span><span>{ alloc::alloc(layout) };
+</span><span>        </span><span style="color:#b48ead;">let</span><span> non_null = </span><span style="color:#b48ead;">match </span><span>NonNull::new(nullable) {
+</span><span>            Some(ptr) =&gt; ptr.cast::&lt;SparseArrayInner&lt;T&gt;&gt;(),
+</span><span>            None =&gt; alloc::handle_alloc_error(layout),
+</span><span>        };
+</span><span>        </span><span style="color:#b48ead;">let</span><span> ptr = non_null.</span><span style="color:#96b5b4;">as_ptr</span><span>();
+</span><span>        </span><span style="color:#b48ead;">unsafe </span><span>{ (&amp;raw </span><span style="color:#b48ead;">mut </span><span>((*ptr).bitmap)).</span><span style="color:#96b5b4;">write</span><span>(bitmap) }
+</span><span>        </span><span style="color:#b48ead;">let</span><span> entries_ptr = </span><span style="color:#b48ead;">unsafe </span><span>{ &amp;raw </span><span style="color:#b48ead;">mut </span><span>((*ptr).entries) as </span><span style="color:#b48ead;">*mut</span><span> T };
+</span><span>        </span><span style="color:#b48ead;">for </span><span>(i, entry) in entries.</span><span style="color:#96b5b4;">iter</span><span>().</span><span style="color:#96b5b4;">enumerate</span><span>() {
+</span><span>            </span><span style="color:#b48ead;">unsafe </span><span>{ entries_ptr.</span><span style="color:#96b5b4;">add</span><span>(i).</span><span style="color:#96b5b4;">write</span><span>(entry) };
+</span><span>        }
+</span><span>        </span><span style="color:#b48ead;">Self</span><span>(non_null)
+</span><span>    }
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">layout</span><span>(</span><span style="color:#bf616a;">len</span><span>: </span><span style="color:#b48ead;">usize</span><span>) -&gt; Layout {
+</span><span>        Layout::new::&lt;Bitmap&gt;()
+</span><span>            .</span><span style="color:#96b5b4;">extend</span><span>(Layout::array::&lt;T&gt;(len).</span><span style="color:#96b5b4;">unwrap</span><span>())
+</span><span>            .</span><span style="color:#96b5b4;">unwrap</span><span>()
+</span><span>            .</span><span style="color:#d08770;">0
+</span><span>            .</span><span style="color:#96b5b4;">pad_to_align</span><span>()
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>We allocate for enough <code>T</code>s according to the <code>Bitmap::len</code>. Then, like above, we cast the pointer to the entries, <code>*mut [T; 0]</code>, to <code>*mut T</code> and then perform the writing of contiguous entries ourselves.</p>
+<h4 id="default"><a class="zola-anchor" href="#default" aria-label="Anchor link for: default"><code>Default</code></a></h4>
+<p>Now that <code>SparseArray&lt;T&gt;</code> is a sized type, we can create them ergonomically with familiar traits like <code>Default</code>. This replaces our prior <code>SparseArray::empty</code> function.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">impl</span><span>&lt;T&gt; Default </span><span style="color:#b48ead;">for </span><span>SparseArray&lt;T&gt; {
+</span><span>    </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">default</span><span>() -&gt; </span><span style="color:#b48ead;">Self </span><span>{
+</span><span>        </span><span style="color:#b48ead;">Self</span><span>::new(Bitmap::</span><span style="color:#d08770;">EMPTY</span><span>, [])
+</span><span>    }
+</span><span>}
+</span><span>
+</span></code></pre>
+<p>That's more like it! Very straightforward.</p>
+<h4 id="clone"><a class="zola-anchor" href="#clone" aria-label="Anchor link for: clone"><code>Clone</code></a></h4>
+<p>While we're at it, implementing <code>Clone</code> is straightforward too: copy the bitmap and clone all of the entries.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">impl</span><span>&lt;T: Clone&gt; Clone </span><span style="color:#b48ead;">for </span><span>SparseArray&lt;T&gt; {
+</span><span>    </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">clone</span><span>(&amp;</span><span style="color:#bf616a;">self</span><span>) -&gt; </span><span style="color:#b48ead;">Self </span><span>{
+</span><span>        </span><span style="color:#b48ead;">Self</span><span>::new(</span><span style="color:#bf616a;">self</span><span>.</span><span style="color:#96b5b4;">bitmap</span><span>(), </span><span style="color:#bf616a;">self</span><span>.</span><span style="color:#96b5b4;">entries</span><span>().</span><span style="color:#96b5b4;">iter</span><span>().</span><span style="color:#96b5b4;">cloned</span><span>())
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>As mentioned above I want to use this type in a Hash Array Mapped Trie and I want to put the pointer behind an <code>Arc</code>. <code>Clone</code> is a really useful standard trait to implement for this use-case since it will allow us to use the awesome standard library function <a href="https://doc.rust-lang.org/std/sync/struct.Arc.html#method.make_mut"><code>Arc::make_mut</code></a> which makes concurrent persistent data structures easy to implement.</p>
+<h4 id="drop"><a class="zola-anchor" href="#drop" aria-label="Anchor link for: drop"><code>Drop</code></a></h4>
+<p>The really important trait to implement is <code>Drop</code>. Since we've taken over the allocation of this type, the compiler will no longer help us drop it correctly.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">impl</span><span>&lt;T&gt; Drop </span><span style="color:#b48ead;">for </span><span>SparseArray&lt;T&gt; {
+</span><span>    </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">drop</span><span>(&amp;</span><span style="color:#b48ead;">mut </span><span style="color:#bf616a;">self</span><span>) {
+</span><span>        </span><span style="color:#b48ead;">if </span><span>std::mem::needs_drop::&lt;T&gt;() {
+</span><span>            </span><span style="color:#65737e;">// NOTE: `entries_mut` is mostly the same as `entries`
+</span><span>            </span><span style="color:#65737e;">// but uses `from_raw_parts_mut` instead.
+</span><span>            </span><span style="color:#b48ead;">for</span><span> entry in </span><span style="color:#bf616a;">self</span><span>.</span><span style="color:#96b5b4;">entries_mut</span><span>() {
+</span><span>                </span><span style="color:#b48ead;">let</span><span> ptr = entry as </span><span style="color:#b48ead;">*mut </span><span>_;
+</span><span>                </span><span style="color:#b48ead;">unsafe </span><span>{ ptr::drop_in_place(ptr) };
+</span><span>            }
+</span><span>        }
+</span><span>        </span><span style="color:#b48ead;">let</span><span> layout = </span><span style="color:#b48ead;">Self</span><span>::layout(</span><span style="color:#bf616a;">self</span><span>.</span><span style="color:#96b5b4;">bitmap</span><span>().</span><span style="color:#96b5b4;">len</span><span>());
+</span><span>        </span><span style="color:#b48ead;">unsafe </span><span>{ alloc::dealloc(</span><span style="color:#bf616a;">self</span><span>.ptr.</span><span style="color:#96b5b4;">as_ptr</span><span>().</span><span style="color:#96b5b4;">cast</span><span>(), layout) }
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>When dropping a <code>SparseArray&lt;T&gt;</code> we first drop the entries, if they need to be dropped, and then deallocate the chunk of memory.</p>
+<h3 id="wrapping-up"><a class="zola-anchor" href="#wrapping-up" aria-label="Anchor link for: wrapping-up">Wrapping up</a></h3>
+<p>With the new definition of <code>SparseArray&lt;T&gt;</code> we have a sized type which can implement common traits like <code>Default</code> and <code>Clone</code>. While the actual allocated chunk of memory has a variable size, the size of a <code>SparseArray&lt;T&gt;</code> is constant and <em>thin</em> - only the size of a pointer. Now we don't waste an extra <code>usize</code> of memory on tracking the <code>entries</code> length twice.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span>assert_eq!(size_of::&lt;SparseArray&lt;</span><span style="color:#b48ead;">u8</span><span>&gt;&gt;(), size_of::&lt;</span><span style="color:#b48ead;">usize</span><span>&gt;());
+</span><span style="color:#65737e;">// The size of the inner type doesn&#39;t matter!
+</span><span>assert_eq!(size_of::&lt;SparseArray&lt;</span><span style="color:#b48ead;">u128</span><span>&gt;&gt;(), size_of::&lt;</span><span style="color:#b48ead;">usize</span><span>&gt;());
+</span></code></pre>
+<p>While custom sized types are well supported by the standard library, dynamically sized types (DSTs) can be annoying to create and work with. An escape hatch for this is to put the type behind a pointer yourself. This places more responsibility on you, but it gives you full control over the type's representation.</p>
+
+        </section>
+    </article>
+</main>
+
+
+
+        
+            
+        
+
+        
+    </div>
+</body>
+
+</html>
