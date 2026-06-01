@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<html class="dark light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    
+
+    
+    
+    
+    <title>
+         Hash Array Mapped Tries in Rust
+        
+    </title>
+
+        
+            <meta property="og:title" content="Hash Array Mapped Tries in Rust" />
+        
+     
+
+     
+         
+     
+
+     
+         
+    
+
+    
+    
+
+    
+    
+        <link href=https://the-mikedavis.github.io/fonts.css rel="stylesheet" />
+    
+
+    
+    
+
+    
+    
+        <script src=https://the-mikedavis.github.io/js/codeblock.js></script>
+    
+
+    
+    
+        <script src=https://the-mikedavis.github.io/js/toc.js></script>
+    
+    
+    
+    
+
+    
+
+    
+    <link rel="alternate" type="application/atom+xml" title="the-mikedavis" href="https://the-mikedavis.github.io/atom.xml">
+
+
+    
+    
+        <link rel="stylesheet" type="text/css" href=https://the-mikedavis.github.io/theme/light.css />
+        <link id="darkModeStyle" rel="stylesheet" type="text/css" href="https://the-mikedavis.github.io/theme/dark.css" />
+    
+
+    <!-- Set the correct theme in the script -->
+    <script src=https://the-mikedavis.github.io/js/themetoggle.js></script>
+    
+        <script>setTheme(getSavedTheme());</script>
+    
+
+    <link rel="stylesheet" type="text/css" media="screen" href=https://the-mikedavis.github.io/main.css />
+
+    
+</head>
+
+
+<body>
+    <div class="content">
+        <header>
+    <div class="main">
+        <a href=https:&#x2F;&#x2F;the-mikedavis.github.io>the-mikedavis</a>
+
+        <div class="socials">
+            
+            <a rel="me" href="https:&#x2F;&#x2F;github.com&#x2F;the-mikedavis&#x2F;" class="social">
+                <img alt=github src=https://the-mikedavis.github.io/social_icons/github.svg>
+            </a>
+            
+        </div>
+    </div>
+
+    <nav>
+        
+        <a href=https://the-mikedavis.github.io style="margin-left: 0.5em">&#x2F;about</a>
+        
+        <a href=https://the-mikedavis.github.io/posts style="margin-left: 0.5em">&#x2F;posts</a>
+        
+
+        
+        |<a id="dark-mode-toggle" onclick="toggleTheme(); event.preventDefault();" href="#">
+            <img src=https://the-mikedavis.github.io/feather/sun.svg id="sun-icon" style="filter: invert(1);" alt="Light" />
+            <img src=https://the-mikedavis.github.io/feather/moon.svg id="moon-icon" alt="Dark" />
+        </a>
+
+        <!-- Inititialize the theme toggle icons -->
+        <script>updateItemToggleTheme()</script>
+        
+    </nav>
+</header>
+
+
+        
+        
+    
+<main>
+    <article>
+        <div class="title">
+            
+            
+    <div class="page-header">
+        Hash Array Mapped Tries in Rust<span class="primary-color" style="font-size: 1.6em">.</span>
+    </div>
+
+
+                <div class="meta">
+                    
+                        Posted on <time>2026-05-31</time>
+                    
+
+                    
+
+                    
+
+                    
+                    
+                            <span class="tags-label"> :: Tags:</span>
+                            <span class="tags">
+                                    <a href="https://the-mikedavis.github.io/tags/rust/" class="post-tag">Rust</a>, 
+                                
+                                    <a href="https://the-mikedavis.github.io/tags/erlang/" class="post-tag">Erlang</a>, 
+                                
+                                    <a href="https://the-mikedavis.github.io/tags/data-structures/" class="post-tag">data structures</a>
+                                
+                            </span>
+                    
+
+                    
+                    
+                        
+                        
+                            
+                        
+
+                        
+                            
+                            :: <a href="https:&#x2F;&#x2F;github.com&#x2F;the-mikedavis&#x2F;the-mikedavis.github.io&#x2F;tree&#x2F;main&#x2F;content&#x2F;posts&#x2F;hash-array-mapped-tries.md" target="_blank" rel="noopener noreferrer"> Source Code</a>
+                        
+                    
+
+                    
+
+                </div>
+        </div>
+
+        
+
+        
+        
+        
+            <div class="toc-container">
+                <h1 class="toc-title">Table of Contents</h1>
+                <ul class="toc-list">
+                    
+                        <li>
+                            <a href="https://the-mikedavis.github.io/posts/hash-array-mapped-tries/#persistent-data-structures">Persistent data structures</a>
+                            
+                        </li>
+                    
+                        <li>
+                            <a href="https://the-mikedavis.github.io/posts/hash-array-mapped-tries/#in-the-wild">In the wild</a>
+                            
+                        </li>
+                    
+                        <li>
+                            <a href="https://the-mikedavis.github.io/posts/hash-array-mapped-tries/#iteration-order">Iteration order</a>
+                            
+                        </li>
+                    
+                        <li>
+                            <a href="https://the-mikedavis.github.io/posts/hash-array-mapped-tries/#hash-tries">Hash tries</a>
+                            
+                        </li>
+                    
+                        <li>
+                            <a href="https://the-mikedavis.github.io/posts/hash-array-mapped-tries/#the-rank-operation">The rank operation</a>
+                            
+                        </li>
+                    
+                        <li>
+                            <a href="https://the-mikedavis.github.io/posts/hash-array-mapped-tries/#looking-up-a-key">Looking up a key</a>
+                            
+                        </li>
+                    
+                        <li>
+                            <a href="https://the-mikedavis.github.io/posts/hash-array-mapped-tries/#inserting-a-key">Inserting a key</a>
+                            
+                                <ul>
+                                    
+                                        <li>
+                                            <a href="https://the-mikedavis.github.io/posts/hash-array-mapped-tries/#splitting-a-leaf">Splitting a leaf</a>
+                                        </li>
+
+                                        
+                                    
+                                        <li>
+                                            <a href="https://the-mikedavis.github.io/posts/hash-array-mapped-tries/#a-raw-pointer-cursor">A raw pointer cursor</a>
+                                        </li>
+
+                                        
+                                    
+                                </ul>
+                            
+                        </li>
+                    
+                        <li>
+                            <a href="https://the-mikedavis.github.io/posts/hash-array-mapped-tries/#persistence">Persistence</a>
+                            
+                        </li>
+                    
+                        <li>
+                            <a href="https://the-mikedavis.github.io/posts/hash-array-mapped-tries/#applying-to-spellbook">Applying to Spellbook</a>
+                            
+                        </li>
+                    
+                        <li>
+                            <a href="https://the-mikedavis.github.io/posts/hash-array-mapped-tries/#wrapping-up">Wrapping up</a>
+                            
+                        </li>
+                    
+                </ul>
+            </div>
+        
+        
+
+        <section class="body">
+            <p>This post is part two in a series focused on a specific data structure design for a type in Rust: a Hash Array Mapped Trie (HAMT). While the details are Rust-focused, we'll also discuss HAMTs as they appear in Erlang's map type. HAMTs are an interesting data structure providing a hash-map interface without chaining or open addressing. Notably they are favored in functional programming languages, especially garbage-collected ones.</p>
+<p>In <a href="https://the-mikedavis.github.io/posts/sparse-array-dst/">part one</a> we built <code>SparseArray&lt;T&gt;</code>: a compact array that only stores occupied slots, tracking which indices are live with a 64-bit bitmap. Today we'll use it to build a <a href="https://en.wikipedia.org/wiki/Hash_array_mapped_trie">Hash Array Mapped Trie</a> (HAMT), a persistent hash map where <code>clone</code> is O(1) and modifications share structure between versions.</p>
+<p>Erlang and Elixir's <code>Map</code> type is a HAMT (for maps with more than 32 elements), and so is Clojure's <code>PersistentHashMap</code>. This post looks at how they work and why. The full implementation lives <a href="https://github.com/the-mikedavis/hamt">here</a>.</p>
+<h3 id="persistent-data-structures"><a class="zola-anchor" href="#persistent-data-structures" aria-label="Anchor link for: persistent-data-structures">Persistent data structures</a></h3>
+<p>Most data structures are <em>ephemeral</em>: when you <code>insert</code> into a <code>HashMap</code>, the old state is gone. Keeping a copy before modifying requires cloning it first - and cloning a map is O(n).</p>
+<p><em>Persistent</em> data structures work differently. A modification produces a new version while leaving the old one intact. Both versions share the nodes they have in common; only the parts that changed are newly allocated. This is <em>structural sharing</em>. Concretely: each insertion costs O(log n) new allocations, not O(n). And <code>clone</code> is O(1) - just a reference count bump.</p>
+<p>This is useful in a few situations. Concurrent reads need no locking: hand out references to the current version, let readers hold them as long as they need, and publish new versions with a pointer swap. Undo/redo is cheap because each historical state shares structure with its neighbors. And you can pass a map into a function and know for certain it hasn't been mutated.</p>
+<h3 id="in-the-wild"><a class="zola-anchor" href="#in-the-wild" aria-label="Anchor link for: in-the-wild">In the wild</a></h3>
+<p>HAMTs are the hash map implementation in several functional programming languages.</p>
+<p>Erlang has used a HAMT for its built-in map type since OTP 17 (2014). Erlang and Elixir are functional languages: values are immutable, and modifying a map produces a new version rather than mutating the old one. A HAMT makes that cheap - only the nodes on the modified path are newly allocated, and the rest is shared with the previous version. Elixir's <code>Map</code> type is the same underlying structure; Elixir runs on BEAM and shares Erlang's data types.</p>
+<p>It's worth knowing that BEAM maps aren't always HAMTs. Maps with 32 or fewer elements are stored as <em>flat maps</em>: a sorted array of key-value pairs. Flat maps are faster for small collections since there's no trie to navigate - lookups are a binary search. Only once a map grows past 32 elements does BEAM promote it to a HAMT. Most Erlang and Elixir developers don't think about this distinction day-to-day, but it has observable consequences: flat map iteration is sorted by key, while HAMT iteration follows hash order.</p>
+<p>Clojure's <a href="https://github.com/clojure/clojure/blob/master/src/jvm/clojure/lang/PersistentHashMap.java"><code>PersistentHashMap</code></a> is the other canonical example. Rich Hickey adapted Phil Bagwell's Array Mapped Trie (2001) when designing Clojure (2007). Haskell's <a href="https://hackage.haskell.org/package/unordered-containers"><code>unordered-containers</code></a> and Scala's <code>scala.collection.immutable.HashMap</code> are HAMTs too.</p>
+<h3 id="iteration-order"><a class="zola-anchor" href="#iteration-order" aria-label="Anchor link for: iteration-order">Iteration order</a></h3>
+<p>A useful (and hazardous) property of HAMTs is that iteration order is determined entirely by the hash function, not by insertion order. In an open-addressing hash table, inserting key A before key B can leave them in different slots than inserting B first, because collision probe sequences depend on what is already in the table. A HAMT has no such dependency - each key's position in the trie is set by its hash bits alone. Two maps built from the same set of keys always produce the same trie structure, regardless of insertion order.</p>
+<p>This sounds like a useful guarantee, but languages are careful not to promise it. The hash function can change between releases, and when it does, iteration order changes with it. Erlang's internal map hash has been replaced more than once: from a variant of Bob Jenkins' classic hash, to CRC32-C, to the current MurmurHash3. Each switch reshuffled ordering and ordering changes could cause subtle bugs in Erlang applications.</p>
+<p>Erlang's approach has been to document order-independence explicitly from the start. When maps were introduced in OTP 17 (2014), <code>maps:fold/3</code> replaced the older <code>maps:foldl/3</code> and <code>maps:foldr/3</code> - dropping the directional names to signal that callers should not depend on order. When <code>maps:iterator/1</code> was added in OTP 21 (2017), the default ordering was <code>undefined</code>.</p>
+<p>To cover the needs of ordered traversal, OTP 26 (2023) added <code>maps:iterator/2</code> with an <code>ordered</code> option:</p>
+<pre data-lang="erlang" style="background-color:#2b303b;color:#c0c5ce;" class="language-erlang "><code class="language-erlang" data-lang="erlang"><span style="color:#d08770;">1</span><span>&gt; </span><span style="color:#bf616a;">Map </span><span>= #{</span><span style="color:#a3be8c;">b </span><span>=&gt; </span><span style="color:#d08770;">2</span><span>, </span><span style="color:#a3be8c;">a </span><span>=&gt; </span><span style="color:#d08770;">1</span><span>, </span><span style="color:#a3be8c;">c </span><span>=&gt; </span><span style="color:#d08770;">3</span><span>}.
+</span><span>#{</span><span style="color:#a3be8c;">a </span><span>=&gt; </span><span style="color:#d08770;">1</span><span>, </span><span style="color:#a3be8c;">b </span><span>=&gt; </span><span style="color:#d08770;">2</span><span>, </span><span style="color:#a3be8c;">c </span><span>=&gt; </span><span style="color:#d08770;">3</span><span>}
+</span><span style="color:#d08770;">2</span><span>&gt; </span><span style="color:#bf616a;">maps</span><span>:</span><span style="color:#bf616a;">to_list</span><span>(</span><span style="color:#bf616a;">maps</span><span>:</span><span style="color:#bf616a;">iterator</span><span>(</span><span style="color:#bf616a;">Map</span><span>, </span><span style="color:#a3be8c;">ordered</span><span>)).
+</span><span>[{</span><span style="color:#a3be8c;">a</span><span>, </span><span style="color:#d08770;">1</span><span>}, {</span><span style="color:#a3be8c;">b</span><span>, </span><span style="color:#d08770;">2</span><span>}, {</span><span style="color:#a3be8c;">c</span><span>, </span><span style="color:#d08770;">3</span><span>}]
+</span></code></pre>
+<p>This sorts by Erlang's standard term order, which is stable across releases. It costs more - sorting is O(n log n) vs. O(n) for a plain traversal - but it's the right tool when you actually need a deterministic sequence.</p>
+<h3 id="hash-tries"><a class="zola-anchor" href="#hash-tries" aria-label="Anchor link for: hash-tries">Hash tries</a></h3>
+<p>A <a href="https://en.wikipedia.org/wiki/Trie">trie</a> is a tree whose structure encodes its keys. In a classic string trie each edge represents one character and the path from root to leaf spells out a key. A HAMT takes the same idea but navigates by hash: we hash the key and consume the result a few bits at a time, taking a branch at each level based on the next chunk.</p>
+<p>We'll use 6 bits per level, giving 64 possible branches at each interior node. With a 64-bit hash that's at most 10 full levels (6 * 10 = 60 bits). In practice tries are much shallower - a map with thousands of entries rarely needs more than two or three. The exception is when two distinct keys produce the same 64-bit hash, which we handle with a dedicated collision node containing a short linear list.</p>
+<p>The three node types look like this:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[</span><span style="color:#bf616a;">derive</span><span>(Clone)]
+</span><span style="color:#b48ead;">enum </span><span>Node&lt;K, V&gt; {
+</span><span>    Leaf { hash: </span><span style="color:#b48ead;">u64</span><span>, key: K, value: V },
+</span><span>    Interior(SparseArray&lt;Arc&lt;Node&lt;K, V&gt;&gt;&gt;),
+</span><span>    Collision { hash: </span><span style="color:#b48ead;">u64</span><span>, entries: Vec&lt;(K, V)&gt; },
+</span><span>}
+</span></code></pre>
+<p>The branch nodes (<code>Interior</code>) leverage <code>SparseArray&lt;T&gt;</code> to save space. A straightforward trie node at each level would hold 64 child pointers, most of them null. An <code>Interior</code> stores only the children that are actually present, densely packed, with the bitmap tracking which slots are occupied. The trie itself wraps an optional root:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">pub struct </span><span>Hamt&lt;K, V, S = RandomState&gt; {
+</span><span>    </span><span style="color:#bf616a;">root</span><span>: Option&lt;Arc&lt;Node&lt;K, V&gt;&gt;&gt;,
+</span><span>    </span><span style="color:#bf616a;">len</span><span>: </span><span style="color:#b48ead;">usize</span><span>,
+</span><span>    </span><span style="color:#bf616a;">hash_builder</span><span>: S,
+</span><span>}
+</span></code></pre>
+<p>Every <code>Node</code> lives behind an <code>Arc</code>. We'll get to why shortly.</p>
+<h3 id="the-rank-operation"><a class="zola-anchor" href="#the-rank-operation" aria-label="Anchor link for: the-rank-operation">The rank operation</a></h3>
+<p>The connection between a hash and a slot in the sparse array is the <code>rank</code> operation from <code>Bitmap</code>. Recall from part one that <code>SparseArray&lt;T&gt;</code> stores entries densely: a sparse array with entries at logical indices 2 and 5 physically stores them at <code>entries[0]</code> and <code>entries[1]</code>. Going from a logical index to its physical position is <code>rank</code>'s job:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">pub fn </span><span style="color:#8fa1b3;">rank</span><span>(</span><span style="color:#bf616a;">self</span><span>, </span><span style="color:#bf616a;">bit</span><span>: </span><span style="color:#b48ead;">usize</span><span>) -&gt; Result&lt;</span><span style="color:#b48ead;">usize</span><span>, </span><span style="color:#b48ead;">usize</span><span>&gt; {
+</span><span>    </span><span style="color:#b48ead;">let</span><span> idx = (</span><span style="color:#bf616a;">self</span><span>.</span><span style="color:#d08770;">0 </span><span>&amp; ((</span><span style="color:#d08770;">1</span><span style="color:#b48ead;">u64 </span><span>&lt;&lt; bit) - </span><span style="color:#d08770;">1</span><span>)).</span><span style="color:#96b5b4;">count_ones</span><span>() as </span><span style="color:#b48ead;">usize</span><span>;
+</span><span>    </span><span style="color:#b48ead;">if </span><span style="color:#bf616a;">self</span><span>.</span><span style="color:#96b5b4;">has</span><span>(bit) { Ok(idx) } </span><span style="color:#b48ead;">else </span><span>{ Err(idx) }
+</span><span>}
+</span></code></pre>
+<p><code>Ok(idx)</code> means the slot is occupied and the entry is at <code>entries[idx]</code>. <code>Err(idx)</code> means the slot is empty and <code>idx</code> is where a new entry would go to keep entries in order. The count comes from masking off all bits at or above <code>bit</code> and calling <code>count_ones</code>. That's a POPCNT instruction on any modern CPU, a single clock cycle.</p>
+<p>Say a bitmap has bits 1 and 3 set:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>Bitmap: 0b...00001010
+</span><span>rank(3) = popcount(0b...00000010) = 1   -&gt;  entries[1]
+</span><span>rank(5) = popcount(0b...00001010) = 2   -&gt;  Err(2), slot is empty
+</span></code></pre>
+<p>And <code>bit_index</code> extracts the 6-bit chunk from the hash at the current level:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">const </span><span style="color:#d08770;">BITS</span><span>: </span><span style="color:#b48ead;">u32 </span><span>= </span><span style="color:#d08770;">6</span><span>;
+</span><span style="color:#b48ead;">const </span><span style="color:#d08770;">MASK</span><span>: </span><span style="color:#b48ead;">u64 </span><span>= (</span><span style="color:#d08770;">1</span><span style="color:#b48ead;">u64 </span><span>&lt;&lt; </span><span style="color:#d08770;">BITS</span><span>) - </span><span style="color:#d08770;">1</span><span>;
+</span><span>
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">bit_index</span><span>(</span><span style="color:#bf616a;">hash</span><span>: </span><span style="color:#b48ead;">u64</span><span>, </span><span style="color:#bf616a;">level</span><span>: </span><span style="color:#b48ead;">u32</span><span>) -&gt; </span><span style="color:#b48ead;">usize </span><span>{
+</span><span>    ((hash &gt;&gt; (level * </span><span style="color:#d08770;">BITS</span><span>)) &amp; </span><span style="color:#d08770;">MASK</span><span>) as </span><span style="color:#b48ead;">usize
+</span><span>}
+</span></code></pre>
+<p>Together, these two get us from a hash value to a physical entry with nothing but bitwise arithmetic.</p>
+<h3 id="looking-up-a-key"><a class="zola-anchor" href="#looking-up-a-key" aria-label="Anchor link for: looking-up-a-key">Looking up a key</a></h3>
+<p>With that in place, lookup is a clean iterative descent:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">pub fn </span><span style="color:#8fa1b3;">get</span><span>&lt;Q&gt;(&amp;</span><span style="color:#bf616a;">self</span><span>, </span><span style="color:#bf616a;">key</span><span>: &amp;Q) -&gt; Option&lt;&amp;V&gt;
+</span><span style="color:#b48ead;">where
+</span><span>    K: Borrow&lt;Q&gt;,
+</span><span>    Q: Hash + Eq + ?Sized,
+</span><span>{
+</span><span>    </span><span style="color:#b48ead;">let</span><span> hash = </span><span style="color:#96b5b4;">compute_hash</span><span>(&amp;</span><span style="color:#bf616a;">self</span><span>.hash_builder, key);
+</span><span>    </span><span style="color:#b48ead;">let mut</span><span> current = </span><span style="color:#bf616a;">self</span><span>.root.</span><span style="color:#96b5b4;">as_deref</span><span>()?;
+</span><span>    </span><span style="color:#b48ead;">let mut</span><span> level = </span><span style="color:#d08770;">0</span><span style="color:#b48ead;">u32</span><span>;
+</span><span>    </span><span style="color:#b48ead;">loop </span><span>{
+</span><span>        </span><span style="color:#b48ead;">match</span><span> current {
+</span><span>            Node::Leaf { hash: h, key: k, value: v } =&gt; {
+</span><span>                </span><span style="color:#b48ead;">return if </span><span>*h == hash &amp;&amp; k.</span><span style="color:#96b5b4;">borrow</span><span>() == key { Some(v) } </span><span style="color:#b48ead;">else </span><span>{ None };
+</span><span>            }
+</span><span>            Node::Interior(arr) =&gt; {
+</span><span>                current = arr.</span><span style="color:#96b5b4;">get</span><span>(</span><span style="color:#96b5b4;">bit_index</span><span>(hash, level))?;
+</span><span>                level += </span><span style="color:#d08770;">1</span><span>;
+</span><span>            }
+</span><span>            Node::Collision { hash: h, entries } =&gt; {
+</span><span>                </span><span style="color:#b48ead;">return if </span><span>*h == hash {
+</span><span>                    entries.</span><span style="color:#96b5b4;">iter</span><span>().</span><span style="color:#96b5b4;">find</span><span>(|(</span><span style="color:#bf616a;">k</span><span>, _)| k.</span><span style="color:#96b5b4;">borrow</span><span>() == key).</span><span style="color:#96b5b4;">map</span><span>(|(_, </span><span style="color:#bf616a;">v</span><span>)| v)
+</span><span>                } </span><span style="color:#b48ead;">else </span><span>{
+</span><span>                    None
+</span><span>                };
+</span><span>            }
+</span><span>        }
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>At each <code>Interior</code> node we call <code>arr.get(bit_index(hash, level))</code>. That extracts the next 6 bits of the hash, runs <code>rank</code> to find the physical index, and returns the child at that slot. If the slot is empty, <code>arr.get</code> returns <code>None</code> and we're done: the key isn't in the map. At a <code>Leaf</code> we compare both the hash and the key. At a <code>Collision</code> we scan the short list linearly.</p>
+<h3 id="inserting-a-key"><a class="zola-anchor" href="#inserting-a-key" aria-label="Anchor link for: inserting-a-key">Inserting a key</a></h3>
+<p>Insertion has more cases. The simple ones are inserting into an empty slot (create a new <code>Leaf</code>) or finding the same key (update its value). The interesting case is landing in a slot already occupied by a <code>Leaf</code> for a <em>different</em> key.</p>
+<h4 id="splitting-a-leaf"><a class="zola-anchor" href="#splitting-a-leaf" aria-label="Anchor link for: splitting-a-leaf">Splitting a leaf</a></h4>
+<p>Two different keys that share the same 6-bit prefix at the current level need to be separated at the next level. We create a new <code>Interior</code> node to hold the existing leaf and let the loop continue:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">if</span><span> existing_bit == new_bit {
+</span><span>    </span><span style="color:#65737e;">// Same prefix: wrap the existing leaf in a new Interior
+</span><span>    </span><span style="color:#65737e;">// and descend again at level + 1.
+</span><span>    </span><span style="color:#b48ead;">let</span><span> existing = current.</span><span style="color:#96b5b4;">clone</span><span>();
+</span><span>    *current = Arc::new(Node::Interior(
+</span><span>        SparseArray::default().</span><span style="color:#96b5b4;">with_insert</span><span>(existing_bit, existing),
+</span><span>    ));
+</span><span>} </span><span style="color:#b48ead;">else </span><span>{
+</span><span>    </span><span style="color:#65737e;">// Bits differ: create the final Interior with both leaves.
+</span><span>    </span><span style="color:#b48ead;">let</span><span> existing = current.</span><span style="color:#96b5b4;">clone</span><span>();
+</span><span>    </span><span style="color:#b48ead;">let</span><span> new_leaf = Arc::new(Node::Leaf { hash, key, value });
+</span><span>    *current = Arc::new(Node::Interior(
+</span><span>        SparseArray::default()
+</span><span>            .</span><span style="color:#96b5b4;">with_insert</span><span>(existing_bit, existing)
+</span><span>            .</span><span style="color:#96b5b4;">with_insert</span><span>(new_bit, new_leaf),
+</span><span>    ));
+</span><span>    </span><span style="color:#b48ead;">return </span><span style="color:#d08770;">true</span><span>;
+</span><span>}
+</span></code></pre>
+<p>When the bits diverge we're done: one new <code>Interior</code>, two children. When they keep colliding, we create a single-child <code>Interior</code> and try again one level deeper. Two keys that are genuinely distinct but share all 60 hash bits (extraordinarily unlikely with any reasonable hasher) would eventually form a <code>Collision</code> node.</p>
+<h4 id="a-raw-pointer-cursor"><a class="zola-anchor" href="#a-raw-pointer-cursor" aria-label="Anchor link for: a-raw-pointer-cursor">A raw pointer cursor</a></h4>
+<p>The full <code>insert_node</code> function is iterative: it advances through <code>Interior</code> nodes level by level without recursion. The wrinkle is that we need a <code>&amp;mut Arc&lt;Node&gt;</code> that steps into the trie one level at a time, and we need to call <code>Arc::make_mut</code> on whatever we're currently pointing at. The borrow checker won't let us hold a reference into an <code>Arc</code> while also doing a <code>make_mut</code> on it in a loop.</p>
+<p>A raw pointer cursor threads the needle:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">insert_node</span><span>&lt;K, V&gt;(</span><span style="color:#bf616a;">arc</span><span>: &amp;</span><span style="color:#b48ead;">mut </span><span>Arc&lt;Node&lt;K, V&gt;&gt;, </span><span style="color:#bf616a;">hash</span><span>: </span><span style="color:#b48ead;">u64</span><span>, </span><span style="color:#bf616a;">key</span><span>: K, </span><span style="color:#bf616a;">value</span><span>: V) -&gt; </span><span style="color:#b48ead;">bool
+</span><span style="color:#b48ead;">where
+</span><span>    K: Clone + Eq,
+</span><span>    V: Clone,
+</span><span>{
+</span><span>    </span><span style="color:#65737e;">// SAFETY: ptr always points into an Arc&lt;Node&gt; kept alive by the trie.
+</span><span>    </span><span style="color:#65737e;">// Exclusive access is guaranteed by the original &amp;mut arc.
+</span><span>    </span><span style="color:#b48ead;">let mut</span><span> ptr: </span><span style="color:#b48ead;">*mut </span><span>Arc&lt;Node&lt;K, V&gt;&gt; = arc;
+</span><span>    </span><span style="color:#b48ead;">let mut</span><span> level = </span><span style="color:#d08770;">0</span><span style="color:#b48ead;">u32</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">loop </span><span>{
+</span><span>        </span><span style="color:#b48ead;">let</span><span> current: &amp;</span><span style="color:#b48ead;">mut </span><span>Arc&lt;Node&lt;K, V&gt;&gt; = </span><span style="color:#b48ead;">unsafe </span><span>{ &amp;</span><span style="color:#b48ead;">mut </span><span>*ptr };
+</span><span>        </span><span style="color:#b48ead;">match</span><span> current.</span><span style="color:#96b5b4;">as_ref</span><span>() {
+</span><span>            </span><span style="color:#65737e;">// ...
+</span><span>            Node::Interior(arr) =&gt; {
+</span><span>                </span><span style="color:#b48ead;">let</span><span> bit = </span><span style="color:#96b5b4;">bit_index</span><span>(hash, level);
+</span><span>                </span><span style="color:#b48ead;">let</span><span> occupied = arr.</span><span style="color:#96b5b4;">bitmap</span><span>().</span><span style="color:#96b5b4;">has</span><span>(bit);
+</span><span>                </span><span style="color:#b48ead;">let </span><span>Node::Interior(arr) = Arc::make_mut(current) </span><span style="color:#b48ead;">else </span><span>{ unreachable!() };
+</span><span>                </span><span style="color:#b48ead;">if</span><span> occupied {
+</span><span>                    </span><span style="color:#b48ead;">let </span><span>Ok(idx) = arr.</span><span style="color:#96b5b4;">bitmap</span><span>().</span><span style="color:#96b5b4;">rank</span><span>(bit) </span><span style="color:#b48ead;">else </span><span>{ unreachable!() };
+</span><span>                    ptr = &amp;raw </span><span style="color:#b48ead;">mut</span><span> arr.</span><span style="color:#96b5b4;">entries_mut</span><span>()[idx];
+</span><span>                    level += </span><span style="color:#d08770;">1</span><span>;
+</span><span>                } </span><span style="color:#b48ead;">else </span><span>{
+</span><span>                    </span><span style="color:#65737e;">// ...
+</span><span>                }
+</span><span>            }
+</span><span>            </span><span style="color:#65737e;">// ...
+</span><span>        }
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p><code>ptr</code> starts pointing at the root <code>Arc</code> and advances to point at a slot in the entries slice of each <code>Interior</code> node. The key insight is that <code>&amp;mut arc</code> at the call site guarantees exclusive access to the entire trie for the duration of the call, so <code>ptr</code> is just a raw-pointer view into that same exclusive borrow, letting us move the cursor forward without fighting the loop-carried lifetime.</p>
+<h3 id="persistence"><a class="zola-anchor" href="#persistence" aria-label="Anchor link for: persistence">Persistence</a></h3>
+<p>Because every node is behind an <code>Arc</code>, cloning a <code>Hamt</code> is O(1):</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">impl</span><span>&lt;K, V, S: Clone&gt; Clone </span><span style="color:#b48ead;">for </span><span>Hamt&lt;K, V, S&gt; {
+</span><span>    </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">clone</span><span>(&amp;</span><span style="color:#bf616a;">self</span><span>) -&gt; </span><span style="color:#b48ead;">Self </span><span>{
+</span><span>        </span><span style="color:#b48ead;">Self </span><span>{
+</span><span>            root: </span><span style="color:#bf616a;">self</span><span>.root.</span><span style="color:#96b5b4;">clone</span><span>(), </span><span style="color:#65737e;">// just increments a reference count
+</span><span>            len: </span><span style="color:#bf616a;">self</span><span>.len,
+</span><span>            hash_builder: </span><span style="color:#bf616a;">self</span><span>.hash_builder.</span><span style="color:#96b5b4;">clone</span><span>(),
+</span><span>        }
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>When you then insert into the clone, <code>Arc::make_mut</code> on each node along the modified path checks the reference count. If the node is uniquely owned (count of one) it hands back <code>&amp;mut T</code> directly, no allocation needed. If it's shared (count of two or more), it clones the node first. Either way only the nodes <em>on the path being modified</em> are ever copied. Everything else stays shared.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">let mut</span><span> a = Hamt::new();
+</span><span>a.</span><span style="color:#96b5b4;">insert</span><span>(&quot;</span><span style="color:#a3be8c;">x</span><span>&quot;, </span><span style="color:#d08770;">10</span><span>);
+</span><span>
+</span><span style="color:#b48ead;">let mut</span><span> b = a.</span><span style="color:#96b5b4;">clone</span><span>();  </span><span style="color:#65737e;">// O(1): one reference count bump
+</span><span>b.</span><span style="color:#96b5b4;">insert</span><span>(&quot;</span><span style="color:#a3be8c;">y</span><span>&quot;, </span><span style="color:#d08770;">20</span><span>);
+</span><span>
+</span><span>assert_eq!(a.</span><span style="color:#96b5b4;">get</span><span>(&quot;</span><span style="color:#a3be8c;">y</span><span>&quot;), None);        </span><span style="color:#65737e;">// a is unchanged
+</span><span>assert_eq!(b.</span><span style="color:#96b5b4;">get</span><span>(&quot;</span><span style="color:#a3be8c;">x</span><span>&quot;), Some(&amp;</span><span style="color:#d08770;">10</span><span>));  </span><span style="color:#65737e;">// b shares a&#39;s unmodified subtree
+</span></code></pre>
+<p>This property (modifications share all unaffected structure with previous versions) is what makes the data structure <em>persistent</em>. An ephemeral mutation (like <code>HashMap::insert</code>) destroys the previous state. A persistent one produces a new version while the old one remains valid for as long as anything holds a reference to it.</p>
+<h3 id="applying-to-spellbook"><a class="zola-anchor" href="#applying-to-spellbook" aria-label="Anchor link for: applying-to-spellbook">Applying to Spellbook</a></h3>
+<p>I originally wanted a HAMT for <a href="https://github.com/helix-editor/spellbook">Spellbook</a>, a Rust spell-checking library I wrote for the <a href="https://github.com/helix-editor/helix">Helix editor</a>. Spellbook's core data structure is a word list, essentially a <code>HashMap&lt;Stem, FlagSet&gt;</code>. A persistent word list would be cheap to share across threads and safe to hand to consumers without copying.</p>
+<p>I swapped out the <code>hashbrown::HashTable</code> backing the word list for the HAMT and ran the benchmarks against the American English dictionary (~50,000 stems):</p>
+<table><thead><tr><th>Test</th><th><code>HashMap</code></th><th>HAMT</th><th>Change</th></tr></thead><tbody>
+<tr><td><code>in_dictionary_word</code></td><td>64.6 ns</td><td>77.8 ns</td><td>+20%</td></tr>
+<tr><td><code>word_with_suffix</code></td><td>65.5 ns</td><td>80.9 ns</td><td>+23%</td></tr>
+<tr><td><code>word_with_prefix</code></td><td>184.1 ns</td><td>206.5 ns</td><td>+12%</td></tr>
+<tr><td><code>word_with_prefix_and_suffix</code></td><td>355.6 ns</td><td>421.8 ns</td><td>+19%</td></tr>
+<tr><td><code>breaks</code></td><td>889.0 ns</td><td>1,589.7 ns</td><td>+79%</td></tr>
+<tr><td>compile <code>en_US</code></td><td>6.8 ms</td><td>22.2 ms</td><td>+228%</td></tr>
+</tbody></table>
+<p>Lookup is 15-25% slower across the board. No surprise: Hashbrown uses SIMD to compare multiple hash fingerprints simultaneously within a single cache line; a HAMT pointer-chases through multiple independent allocations per lookup. Even at three or four levels deep it can't match the cache locality of a flat table.</p>
+<p>The compilation benchmark is where it really hurts: building the word list is 3x slower. Each insertion allocates along the entire path from root to new leaf, whereas hashbrown amortizes resizing across many insertions. For tens of thousands of stems this adds up quickly.</p>
+<p>For Spellbook, a HAMT is the wrong tool. Lookup needs very low latency since it's always used in a tight loop. Concurrent modification is most likely better handled by a <code>RwLock</code> or <code>Mutex</code>.</p>
+<h3 id="wrapping-up"><a class="zola-anchor" href="#wrapping-up" aria-label="Anchor link for: wrapping-up">Wrapping up</a></h3>
+<p>A Hash Array Mapped Trie is a trie where interior nodes are <code>SparseArray&lt;Arc&lt;Node&gt;&gt;</code>s indexed by 6-bit chunks of the key's hash. The <code>rank</code> operation (one POPCNT) maps a logical slot in the bitmap to a physical index in the dense entries array. <code>Arc::make_mut</code> handles copy-on-write during insertion so that only the O(depth) path being modified is ever newly allocated, leaving all other nodes shared between versions.</p>
+<p>The full code lives <a href="https://github.com/the-mikedavis/hamt">here</a>.</p>
+
+        </section>
+    </article>
+</main>
+
+
+
+        
+            
+        
+
+        
+    </div>
+</body>
+
+</html>

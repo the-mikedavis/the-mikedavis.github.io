@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<html class="dark light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    
+
+    
+    
+    
+    <title>
+         &quot;German string&quot; optimizations in Spellbook
+        
+    </title>
+
+        
+            <meta property="og:title" content="&quot;German string&quot; optimizations in Spellbook" />
+        
+     
+
+     
+         
+     
+
+     
+         
+    
+
+    
+    
+
+    
+    
+        <link href=https://the-mikedavis.github.io/fonts.css rel="stylesheet" />
+    
+
+    
+    
+
+    
+    
+        <script src=https://the-mikedavis.github.io/js/codeblock.js></script>
+    
+
+    
+    
+        <script src=https://the-mikedavis.github.io/js/toc.js></script>
+    
+    
+    
+    
+
+    
+
+    
+    <link rel="alternate" type="application/atom+xml" title="the-mikedavis" href="https://the-mikedavis.github.io/atom.xml">
+
+
+    
+    
+        <link rel="stylesheet" type="text/css" href=https://the-mikedavis.github.io/theme/light.css />
+        <link id="darkModeStyle" rel="stylesheet" type="text/css" href="https://the-mikedavis.github.io/theme/dark.css" />
+    
+
+    <!-- Set the correct theme in the script -->
+    <script src=https://the-mikedavis.github.io/js/themetoggle.js></script>
+    
+        <script>setTheme(getSavedTheme());</script>
+    
+
+    <link rel="stylesheet" type="text/css" media="screen" href=https://the-mikedavis.github.io/main.css />
+
+    
+</head>
+
+
+<body>
+    <div class="content">
+        <header>
+    <div class="main">
+        <a href=https:&#x2F;&#x2F;the-mikedavis.github.io>the-mikedavis</a>
+
+        <div class="socials">
+            
+            <a rel="me" href="https:&#x2F;&#x2F;github.com&#x2F;the-mikedavis&#x2F;" class="social">
+                <img alt=github src=https://the-mikedavis.github.io/social_icons/github.svg>
+            </a>
+            
+        </div>
+    </div>
+
+    <nav>
+        
+        <a href=https://the-mikedavis.github.io style="margin-left: 0.5em">&#x2F;about</a>
+        
+        <a href=https://the-mikedavis.github.io/posts style="margin-left: 0.5em">&#x2F;posts</a>
+        
+
+        
+        |<a id="dark-mode-toggle" onclick="toggleTheme(); event.preventDefault();" href="#">
+            <img src=https://the-mikedavis.github.io/feather/sun.svg id="sun-icon" style="filter: invert(1);" alt="Light" />
+            <img src=https://the-mikedavis.github.io/feather/moon.svg id="moon-icon" alt="Dark" />
+        </a>
+
+        <!-- Inititialize the theme toggle icons -->
+        <script>updateItemToggleTheme()</script>
+        
+    </nav>
+</header>
+
+
+        
+        
+    
+<main>
+    <article>
+        <div class="title">
+            
+            
+    <div class="page-header">
+        &quot;German string&quot; optimizations in Spellbook<span class="primary-color" style="font-size: 1.6em">.</span>
+    </div>
+
+
+                <div class="meta">
+                    
+                        Posted on <time>2024-11-03</time>
+                    
+
+                    
+
+                    
+
+                    
+                    
+                            <span class="tags-label"> :: Tags:</span>
+                            <span class="tags">
+                                    <a href="https://the-mikedavis.github.io/tags/rust/" class="post-tag">Rust</a>, 
+                                
+                                    <a href="https://the-mikedavis.github.io/tags/optimization/" class="post-tag">optimization</a>, 
+                                
+                                    <a href="https://the-mikedavis.github.io/tags/data-structures/" class="post-tag">data structures</a>
+                                
+                            </span>
+                    
+
+                    
+                    
+                        
+                        
+                            
+                        
+
+                        
+                            
+                            :: <a href="https:&#x2F;&#x2F;github.com&#x2F;the-mikedavis&#x2F;the-mikedavis.github.io&#x2F;tree&#x2F;main&#x2F;content&#x2F;posts&#x2F;german-string-optimizations-in-spellbook.md" target="_blank" rel="noopener noreferrer"> Source Code</a>
+                        
+                    
+
+                    
+
+                </div>
+        </div>
+
+        
+
+        
+        
+        
+            <div class="toc-container">
+                <h1 class="toc-title">Table of Contents</h1>
+                <ul class="toc-list">
+                    
+                        <li>
+                            <a href="https://the-mikedavis.github.io/posts/german-string-optimizations-in-spellbook/#spellbook">Spellbook</a>
+                            
+                        </li>
+                    
+                        <li>
+                            <a href="https://the-mikedavis.github.io/posts/german-string-optimizations-in-spellbook/#strings-in-spellbook">Strings in Spellbook</a>
+                            
+                        </li>
+                    
+                        <li>
+                            <a href="https://the-mikedavis.github.io/posts/german-string-optimizations-in-spellbook/#strings-in-rust">Strings in Rust</a>
+                            
+                        </li>
+                    
+                        <li>
+                            <a href="https://the-mikedavis.github.io/posts/german-string-optimizations-in-spellbook/#box-str-and-fat-pointers">Box&lt;str&gt; and fat pointers</a>
+                            
+                        </li>
+                    
+                        <li>
+                            <a href="https://the-mikedavis.github.io/posts/german-string-optimizations-in-spellbook/#the-road-to-german-strings">The road to &quot;German strings&quot;</a>
+                            
+                        </li>
+                    
+                        <li>
+                            <a href="https://the-mikedavis.github.io/posts/german-string-optimizations-in-spellbook/#memory-savings">Memory savings</a>
+                            
+                        </li>
+                    
+                        <li>
+                            <a href="https://the-mikedavis.github.io/posts/german-string-optimizations-in-spellbook/#theory-into-practice-let-s-build-umbrastring">Theory into practice: let&#x27;s build UmbraString</a>
+                            
+                                <ul>
+                                    
+                                        <li>
+                                            <a href="https://the-mikedavis.github.io/posts/german-string-optimizations-in-spellbook/#default">Default</a>
+                                        </li>
+
+                                        
+                                    
+                                        <li>
+                                            <a href="https://the-mikedavis.github.io/posts/german-string-optimizations-in-spellbook/#allocating">Allocating</a>
+                                        </li>
+
+                                        
+                                    
+                                        <li>
+                                            <a href="https://the-mikedavis.github.io/posts/german-string-optimizations-in-spellbook/#instantiation">Instantiation</a>
+                                        </li>
+
+                                        
+                                    
+                                        <li>
+                                            <a href="https://the-mikedavis.github.io/posts/german-string-optimizations-in-spellbook/#reconstructing-a-byte-slice">Reconstructing a byte slice</a>
+                                        </li>
+
+                                        
+                                    
+                                        <li>
+                                            <a href="https://the-mikedavis.github.io/posts/german-string-optimizations-in-spellbook/#clone">Clone</a>
+                                        </li>
+
+                                        
+                                    
+                                        <li>
+                                            <a href="https://the-mikedavis.github.io/posts/german-string-optimizations-in-spellbook/#drop">Drop</a>
+                                        </li>
+
+                                        
+                                    
+                                        <li>
+                                            <a href="https://the-mikedavis.github.io/posts/german-string-optimizations-in-spellbook/#eq">Eq</a>
+                                        </li>
+
+                                        
+                                    
+                                </ul>
+                            
+                        </li>
+                    
+                        <li>
+                            <a href="https://the-mikedavis.github.io/posts/german-string-optimizations-in-spellbook/#benchmarking-and-memory-analysis">Benchmarking and memory analysis</a>
+                            
+                        </li>
+                    
+                        <li>
+                            <a href="https://the-mikedavis.github.io/posts/german-string-optimizations-in-spellbook/#bonus-points-the-flagset-can-also-be-german">Bonus points: the FlagSet can also be German!</a>
+                            
+                                <ul>
+                                    
+                                        <li>
+                                            <a href="https://the-mikedavis.github.io/posts/german-string-optimizations-in-spellbook/#pitfalls-and-maybeuninit-t">Pitfalls and MaybeUninit&lt;T&gt;</a>
+                                        </li>
+
+                                        
+                                    
+                                        <li>
+                                            <a href="https://the-mikedavis.github.io/posts/german-string-optimizations-in-spellbook/#zeroed-bit-patterns">Zeroed bit patterns</a>
+                                        </li>
+
+                                        
+                                    
+                                        <li>
+                                            <a href="https://the-mikedavis.github.io/posts/german-string-optimizations-in-spellbook/#null-pointer-optimization-and-strange-behavior">Null pointer optimization and strange behavior</a>
+                                        </li>
+
+                                        
+                                    
+                                        <li>
+                                            <a href="https://the-mikedavis.github.io/posts/german-string-optimizations-in-spellbook/#flagslice-memory-savings">FlagSlice Memory Savings</a>
+                                        </li>
+
+                                        
+                                    
+                                </ul>
+                            
+                        </li>
+                    
+                        <li>
+                            <a href="https://the-mikedavis.github.io/posts/german-string-optimizations-in-spellbook/#wrapping-up-kudos">Wrapping up &amp; Kudos</a>
+                            
+                        </li>
+                    
+                </ul>
+            </div>
+        
+        
+
+        <section class="body">
+            <h1 id="spellbook"><a class="zola-anchor" href="#spellbook" aria-label="Anchor link for: spellbook">Spellbook</a></h1>
+<p><a href="https://github.com/helix-editor/spellbook">Spellbook</a> is a Rust spell-checking library I've written the style of <a href="https://github.com/hunspell/hunspell">Hunspell</a> to bring spell checking to the <a href="https://github.com/helix-editor/helix">Helix editor</a>. It's more-or-less a Rust rewrite of <a href="https://github.com/nuspell/nuspell">Nuspell</a>, which itself is more-or-less a rewrite of Hunspell. Spellbook has a pretty slim interface: you can instantiate a dictionary from Hunspell dictionary files and use it to check words. For a small example of how you might use Spellbook:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">main</span><span>() {
+</span><span>    </span><span style="color:#65737e;">// Dictionary files can be sourced from
+</span><span>    </span><span style="color:#65737e;">// &lt;https://github.com/LibreOffice/dictionaries&gt;
+</span><span>    </span><span style="color:#b48ead;">let</span><span> aff = std::fs::read_to_string(&quot;</span><span style="color:#a3be8c;">en_US.aff</span><span>&quot;).</span><span style="color:#96b5b4;">unwrap</span><span>();
+</span><span>    </span><span style="color:#b48ead;">let</span><span> dic = std::fs::read_to_string(&quot;</span><span style="color:#a3be8c;">en_US.dic</span><span>&quot;).</span><span style="color:#96b5b4;">unwrap</span><span>();
+</span><span>    </span><span style="color:#b48ead;">let</span><span> dict = spellbook::Dictionary::new(&amp;aff, &amp;dic).</span><span style="color:#96b5b4;">unwrap</span><span>();
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">let</span><span> word = std::env::args().</span><span style="color:#96b5b4;">nth</span><span>(</span><span style="color:#d08770;">1</span><span>).</span><span style="color:#96b5b4;">expect</span><span>(&quot;</span><span style="color:#a3be8c;">expected a word to check</span><span>&quot;);
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">if</span><span> dict.</span><span style="color:#96b5b4;">check</span><span>(&amp;word) {
+</span><span>        println!(&quot;</span><span style="color:#d08770;">{word:?}</span><span style="color:#a3be8c;"> is in the dictionary.</span><span>&quot;);
+</span><span>    } </span><span style="color:#b48ead;">else </span><span>{
+</span><span>        println!(&quot;</span><span style="color:#d08770;">{word:?}</span><span style="color:#a3be8c;"> is NOT in the dictionary.</span><span>&quot;);
+</span><span>        std::process::exit(</span><span style="color:#d08770;">1</span><span>);
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>In this post we'll be looking at the string representation used in Spellbook and aiming to optimize it to save memory.</p>
+<h1 id="strings-in-spellbook"><a class="zola-anchor" href="#strings-in-spellbook" aria-label="Anchor link for: strings-in-spellbook">Strings in Spellbook</a></h1>
+<p>How Spellbook works exactly is beyond the scope of this post, so this section gives a simplified overview and deals with simplified types. If you're interested in more details, check out the <a href="https://github.com/helix-editor/spellbook/blob/master/README.md#how-does-it-work">Spellbook README</a> or <a href="https://zverok.space/spellchecker.html">@zverok's Rebuilding the Spellchecker</a> blog post and the <a href="https://github.com/helix-editor/spellbook/blob/master/docs/internals.md">Spellbook internals document</a>.</p>
+<p>A central part of the procedure to check a word is to look up word(s) in a hash table. This lookup table contains an entry for each "stem" in the dictionary. You might imagine that the <code>Dictionary</code> type is a wrapper around a <code>HashSet&lt;String&gt;</code>. This is correct in essence but Hunspell-like checkers don't store every possible word in memory. Instead there is some "compression." For an example from the <code>en_US</code> (American English) dictionary, the lookup table in Spellbook associates a stem "adventure" with a set of flags like 'D', 'R' and 'S'. The flags correspond to rules defined for the dictionary allowing transformations like prefixes and suffixes. 'D' for example allows adding the "d" (or "ed" or "ied", depending on the stem) suffix, producing "adventured." 'R' allows "adventurer" and 'S' allows "adventures." So we can imagine that the lookup table has a type similar to <code>HashMap&lt;String, HashSet&lt;Flag&gt;&gt;</code>.</p>
+<p>Despite the "compression" that prefixes and suffixes enable, the lookup table contains many entries. The exact number varies with which dictionary files you use as input but American English contains around 50,000 stems, and it's a relatively slim dictionary. Others contain hundreds of thousands or even millions of stems, so it's worth trying to optimize the space we take for each stem.</p>
+<p>Good optimizations come from good observations so let's list out some properties of these strings:</p>
+<ul>
+<li>Once inserted into the lookup table these strings are never modified.</li>
+<li>These strings have a small maximum size. Spellbook refuses to check words over 360 bytes long (in UTF-8 representation) so there's no point in storing words over 360 bytes in the lookup table.</li>
+<li>Stems correspond to words so they're typically shorter rather than longer.</li>
+</ul>
+<h1 id="strings-in-rust"><a class="zola-anchor" href="#strings-in-rust" aria-label="Anchor link for: strings-in-rust">Strings in Rust</a></h1>
+<p>Let's take a bit of a detour to talk about how strings are represented in Rust. For starters there's the <code>String</code> type. <code>String</code>s are quite flexible: they can be modified, resized and have a large maximum size. As for how they are represented, the Rust docs say:</p>
+<blockquote>
+<p>A <code>String</code> is made up of three components: a pointer to some bytes, a length, and a capacity.</p>
+</blockquote>
+<p>Simplifying a bit here, we can imagine a String looks like this:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">struct </span><span>String {
+</span><span>    </span><span style="color:#bf616a;">pointer</span><span>: NonNull&lt;</span><span style="color:#b48ead;">u8</span><span>&gt;,
+</span><span>    </span><span style="color:#bf616a;">length</span><span>: </span><span style="color:#b48ead;">usize</span><span>,
+</span><span>    </span><span style="color:#bf616a;">capacity</span><span>: </span><span style="color:#b48ead;">usize</span><span>,
+</span><span>}
+</span></code></pre>
+<h1 id="box-str-and-fat-pointers"><a class="zola-anchor" href="#box-str-and-fat-pointers" aria-label="Anchor link for: box-str-and-fat-pointers"><code>Box&lt;str&gt;</code> and fat pointers</a></h1>
+<p>The first thing that comes to mind is that storing <code>length</code> and <code>capacity</code> is redundant for our use-case. In our lookup table the strings are never modified so there's no need to store any extra information that would allow us to resize the string. A non-resizable string can be written with the <code>Box&lt;str&gt;</code> type. <code>Box&lt;str&gt;</code> is the owned version of a <code>&amp;str</code>.</p>
+<p><code>&amp;str</code> and slices (<code>&amp;[T]</code>) have an interesting representation and learning about them is a good way to dig into "fat pointers" in Rust. A <code>&amp;str</code> (or equivalently, <code>&amp;[u8]</code>) is a fat pointer - a pointer to some bytes plus some metadata. For <code>&amp;[T]</code> the metadata is the length of the slice. Using a fat pointer makes string (<code>&amp;str</code>) and other slices nice to work with - you can subslice and read the length of a string slice cheaply and ergonomically. <code>Box&lt;str&gt;</code> and <code>Box&lt;[T]&gt;</code> are laid out the same way.</p>
+<p>You can imagine that these fat pointers are basically a tuple <code>(*const T, usize)</code>. This takes 2 <code>usize</code>s worth of memory to represent: one <code>usize</code> for the actual pointer ("thin pointer") and one for the metadata. What exactly is a <code>usize</code> though? Quoting the Rust docs again:</p>
+<blockquote>
+<p>The size of [<code>usize</code>] is how many bytes it takes to reference any location in memory. For example, on a 32 bit target, this is 4 bytes and on a 64 bit target, this is 8 bytes.</p>
+</blockquote>
+<p>So <code>usize</code> is an unsigned integer type of the same size as a "thin pointer": a pointer with no metadata, like <code>*const T</code>/<code>*mut T</code> or equivalently <code>NonNull&lt;T&gt;</code>. For simplicity we'll talk only about 64 bit targets for the rest of the post and assume that <code>size_of::&lt;usize&gt;() == 8</code>.</p>
+<p>By switching the stem type to <code>Box&lt;str&gt;</code> we save 8 bytes per stem from not tracking <code>capacity</code>, taking advantage of our observation that strings are not modified. Nice! But there's still room for improvement from our other observations.</p>
+<h1 id="the-road-to-german-strings"><a class="zola-anchor" href="#the-road-to-german-strings" aria-label="Anchor link for: the-road-to-german-strings">The road to "German strings"</a></h1>
+<p>The other observations are about the length of each string. They're short. If the <code>length</code> field is a <code>usize</code> that means your strings can be at most 2^64 bytes long, and <em>wow that is long</em>! Our strings will never be longer than 360 bytes so of the 64 bits we use to represent the length we'll only ever use 9 (2^9 = 512). That's quite a few bits wasted. If we used a <code>u16</code> to store the length instead we'd save 6 bytes. What should we do with those 6 bytes we've saved?</p>
+<p>This is where "German strings" come in. "German strings" or "German-style strings" or "Umbra strings" (all the same thing) are described very well in a post from CedarDB: <a href="https://cedardb.com/blog/german_strings/">Why German Strings are Everywhere</a>. The idea is to use a integer type smaller than <code>usize</code> for the length (<code>u32</code> in their case) and repurpose the remaining bytes to store a prefix of the data. We can store a few more bytes in the "prefix" section since we're using a <code>u16</code> for length, so our type would look like this in memory:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[</span><span style="color:#bf616a;">repr</span><span>(C)]
+</span><span style="color:#b48ead;">struct </span><span>UmbraString {
+</span><span>    </span><span style="color:#bf616a;">len</span><span>: </span><span style="color:#b48ead;">u16</span><span>, </span><span style="color:#65737e;">// takes 2 bytes
+</span><span>    </span><span style="color:#bf616a;">prefix</span><span>: [</span><span style="color:#b48ead;">u8</span><span>; 6], </span><span style="color:#65737e;">// takes 6 bytes
+</span><span>    </span><span style="color:#bf616a;">pointer</span><span>: NonNull&lt;</span><span style="color:#b48ead;">u8</span><span>&gt;, </span><span style="color:#65737e;">// this takes `usize` (8 bytes)
+</span><span>}
+</span></code></pre>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>+-------+-----------------------+-------------------------------+
+</span><span>+  len  +        prefix         +           pointer             +
+</span><span>+-------+-----------------------+-------------------------------+
+</span><span>   u16           6x u8                       8x u8
+</span></code></pre>
+<p>Umbra and CedarDB like this prefix because it can be used to cheaply compute whether two of these <code>UmbraString</code>s are (not) equal - the <code>Eq</code> trait in Rust.</p>
+<p>Consider a very short string like "hi!". In memory that would look like so:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>+-------+-----------------------+-------------------------------+
+</span><span>+ 3u16  + h   i   !   .   .   . +         pointer (?)           +
+</span><span>+-------+-----------------------+-------------------------------+
+</span></code></pre>
+<p>And what's the pointer pointing to? Nothing I guess. We already stored the full string right in the struct "inline." So there's no need to allocate memory and point to it.</p>
+<p>In fact for medium-long strings that can fit in the prefix bytes plus the pointer bytes, we can eliminate the pointer part altogether. This is a <strong>S</strong>hort <strong>S</strong>tring <strong>O</strong>ptimization (SSO): when the string is short enough, we can store it directly in our <code>UmbraString</code> struct and avoid allocating a buffer. We can store 6 bytes in the prefix and another 8 in the suffix area for a total of 14 bytes inline. For an ASCII string, that's up to 14 characters we can represent without allocating. Very nice!</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>+-------+-----------------------+-------------------------------+
+</span><span>+ 12u16 + h   e   l   l   o  _  + w   o   r   l   d   !   .   . +
+</span><span>+-------+-----------------------+-------------------------------+
+</span><span>   len           prefix                     suffix
+</span></code></pre>
+<p>This either-or type would look like so, using a <code>union</code>:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[</span><span style="color:#bf616a;">repr</span><span>(C)]
+</span><span style="color:#b48ead;">struct </span><span>UmbraString {
+</span><span>    </span><span style="color:#bf616a;">len</span><span>: </span><span style="color:#b48ead;">u16</span><span>,
+</span><span>    </span><span style="color:#bf616a;">prefix</span><span>: [</span><span style="color:#b48ead;">u8</span><span>; 6],
+</span><span>    </span><span style="color:#bf616a;">trailing</span><span>: Trailing
+</span><span>}
+</span><span>
+</span><span>#[</span><span style="color:#bf616a;">repr</span><span>(C)]
+</span><span>union Trailing {
+</span><span>    suffix: [</span><span style="color:#b48ead;">u8</span><span>; </span><span style="color:#d08770;">8</span><span>],
+</span><span>    </span><span style="color:#65737e;">// ManuallyDrop is necessary since we only want
+</span><span>    </span><span style="color:#65737e;">// to deallocate the buffer if we&#39;re using the
+</span><span>    </span><span style="color:#65737e;">// &quot;long&quot; variant of this union.
+</span><span>    ptr: ManuallyDrop&lt;NonNull&lt;</span><span style="color:#b48ead;">u8</span><span>&gt;&gt;,
+</span><span>}
+</span></code></pre>
+<p>How do we know which member of the <code>union</code> our <code>UmbraString</code> is? Just look at the <code>len</code> field: if it's 14 or less then we're using the "short" variant - everything inline. If it's 15 or greater then the string is allocated and pointed to.</p>
+<h1 id="memory-savings"><a class="zola-anchor" href="#memory-savings" aria-label="Anchor link for: memory-savings">Memory savings</a></h1>
+<p>Why is this layout so attractive?</p>
+<p>This representation is no more expensive than a <code>Box&lt;str&gt;</code> in terms of memory consumption. <code>size_of::&lt;Box&lt;str&gt;&gt;()</code> is <code>16</code> - 16 bytes. (Note that <code>size_of</code> is counting the size of the type, not the size of the allocation the pointer is pointing to.) <code>size_of::&lt;UmbraString&gt;()</code> is also <code>16</code>. The difference is that any non-empty <code>Box&lt;str&gt;</code> will allocate. A short string like "hi!" allocates 3 bytes somewhere on the heap for a total of 19 bytes. <code>UmbraString</code> does not: it's still 16 bytes. For a medium string like "hello_world!" <code>Box&lt;str&gt;</code> will allocate those 12 bytes on the heap for a total cost of 28 bytes. The equivalent <code>UmbraString</code> is still a total of 16 bytes. For long strings like <code>"a".repeat(50)</code>, <code>Box&lt;str&gt;</code> will allocate the 50 bytes for a total cost of 66 bytes. In the worst case (long strings) <code>UmbraString</code> <strong>is no worse</strong>: it also takes exactly 66 bytes.</p>
+<p>Umbra strings are attractive here because they don't have a memory cost: we would be paying the 16 bytes of a <code>Box&lt;str&gt;</code> anyways and wasting the 6 bytes from the length <code>usize</code>. Any time we use the inline variant of <code>UmbraString</code> we save memory.</p>
+<p>You might also think <code>UmbraString</code> is faster to work with if you commonly have short strings because you don't need to follow a pointer to compare data. We'll see in the benchmarks that <code>UmbraString</code> is not much different in terms of speed. We need an extra comparison operation to figure out if we're using a short or long variant after all.</p>
+<h1 id="theory-into-practice-let-s-build-umbrastring"><a class="zola-anchor" href="#theory-into-practice-let-s-build-umbrastring" aria-label="Anchor link for: theory-into-practice-let-s-build-umbrastring">Theory into practice: let's build <code>UmbraString</code></a></h1>
+<p>This is basically the same snippet as above. We'll define some constants for the lengths of each segment and some basic helpers.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">use </span><span>core::mem::{size_of, ManuallyDrop};
+</span><span style="color:#b48ead;">use </span><span>core::ptr::NonNull;
+</span><span>
+</span><span style="color:#65737e;">// 6 on 64 bit machines
+</span><span style="color:#b48ead;">const </span><span style="color:#d08770;">PREFIX_LEN</span><span>: </span><span style="color:#b48ead;">usize </span><span>= size_of::&lt;</span><span style="color:#b48ead;">usize</span><span>&gt;() - size_of::&lt;</span><span style="color:#b48ead;">u16</span><span>&gt;();
+</span><span style="color:#65737e;">// 8 on 64 bit machines
+</span><span style="color:#b48ead;">const </span><span style="color:#d08770;">SUFFIX_LEN</span><span>: </span><span style="color:#b48ead;">usize </span><span>= size_of::&lt;</span><span style="color:#b48ead;">usize</span><span>&gt;();
+</span><span style="color:#65737e;">// We can fit 14 bytes inline, nice!
+</span><span style="color:#b48ead;">const </span><span style="color:#d08770;">INLINE_LEN</span><span>: </span><span style="color:#b48ead;">u16 </span><span>= (</span><span style="color:#d08770;">PREFIX_LEN </span><span>+ </span><span style="color:#d08770;">SUFFIX_LEN</span><span>) as </span><span style="color:#b48ead;">u16</span><span>;
+</span><span>
+</span><span>#[</span><span style="color:#bf616a;">repr</span><span>(C)]
+</span><span style="color:#b48ead;">pub struct </span><span>UmbraString {
+</span><span>    </span><span style="color:#bf616a;">len</span><span>: </span><span style="color:#b48ead;">u16</span><span>,
+</span><span>    </span><span style="color:#bf616a;">prefix</span><span>: [</span><span style="color:#b48ead;">u8</span><span>; PREFIX_LEN],
+</span><span>    </span><span style="color:#bf616a;">trailing</span><span>: Trailing,
+</span><span>}
+</span><span>
+</span><span>#[</span><span style="color:#bf616a;">repr</span><span>(C)]
+</span><span>union Trailing {
+</span><span>    suffix: [</span><span style="color:#b48ead;">u8</span><span>; </span><span style="color:#d08770;">SUFFIX_LEN</span><span>],
+</span><span>    ptr: ManuallyDrop&lt;NonNull&lt;</span><span style="color:#b48ead;">u8</span><span>&gt;&gt;,
+</span><span>}
+</span><span>
+</span><span style="color:#b48ead;">impl </span><span>UmbraString {
+</span><span>    </span><span style="color:#b48ead;">pub fn </span><span style="color:#8fa1b3;">len</span><span>(&amp;</span><span style="color:#bf616a;">self</span><span>) -&gt; </span><span style="color:#b48ead;">usize </span><span>{
+</span><span>        </span><span style="color:#bf616a;">self</span><span>.len as </span><span style="color:#b48ead;">usize
+</span><span>    }
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">pub fn </span><span style="color:#8fa1b3;">is_empty</span><span>(&amp;</span><span style="color:#bf616a;">self</span><span>) -&gt; </span><span style="color:#b48ead;">bool </span><span>{
+</span><span>        </span><span style="color:#bf616a;">self</span><span>.len == </span><span style="color:#d08770;">0
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<h2 id="default"><a class="zola-anchor" href="#default" aria-label="Anchor link for: default"><code>Default</code></a></h2>
+<p>The empty string is easy to represent: the length is <code>0</code> so it belongs as the inline variant. We'll set everything to zero - we won't access those bytes so it doesn't really matter what they're set to, but this seems like a reasonable default.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">impl </span><span>Default </span><span style="color:#b48ead;">for </span><span>UmbraString {
+</span><span>    </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">default</span><span>() -&gt; </span><span style="color:#b48ead;">Self </span><span>{
+</span><span>        </span><span style="color:#b48ead;">Self </span><span>{
+</span><span>            len: </span><span style="color:#d08770;">0</span><span>,
+</span><span>            prefix: [</span><span style="color:#d08770;">0</span><span>; </span><span style="color:#d08770;">PREFIX_LEN</span><span>],
+</span><span>            trailing: Trailing {
+</span><span>                suffix: [</span><span style="color:#d08770;">0</span><span>; </span><span style="color:#d08770;">SUFFIX_LEN</span><span>]
+</span><span>            }
+</span><span>        }
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<h2 id="allocating"><a class="zola-anchor" href="#allocating" aria-label="Anchor link for: allocating">Allocating</a></h2>
+<p>Let's define some helper functions for actually allocating the data. The allocation helpers are only used when working with the long variant. A <code>&amp;str</code> is a <code>&amp;[u8]</code> that is valid UTF-8 so we'll be working in terms of <code>*mut u8</code>/<code>*const u8</code> thin pointers.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">use </span><span>alloc::alloc;
+</span><span style="color:#b48ead;">use </span><span>core::ptr::{</span><span style="color:#bf616a;">self</span><span>, NonNull};
+</span><span>
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">copy_slice</span><span>(</span><span style="color:#bf616a;">src</span><span>: &amp;[</span><span style="color:#b48ead;">u8</span><span>]) -&gt; NonNull&lt;</span><span style="color:#b48ead;">u8</span><span>&gt; {
+</span><span>    </span><span style="color:#b48ead;">let</span><span> layout = </span><span style="color:#96b5b4;">layout</span><span>(src.</span><span style="color:#96b5b4;">len</span><span>());
+</span><span>    </span><span style="color:#b48ead;">let</span><span> nullable = </span><span style="color:#b48ead;">unsafe </span><span>{ alloc::alloc(layout) };
+</span><span>    </span><span style="color:#b48ead;">let</span><span> ptr = </span><span style="color:#b48ead;">match </span><span>NonNull::new(nullable) {
+</span><span>        Some(ptr) =&gt; ptr.</span><span style="color:#96b5b4;">cast</span><span>(),
+</span><span>        None =&gt; alloc::handle_alloc_error(layout),
+</span><span>    };
+</span><span>    </span><span style="color:#b48ead;">unsafe </span><span>{
+</span><span>        ptr::copy_nonoverlapping(src.</span><span style="color:#96b5b4;">as_ptr</span><span>(), ptr.</span><span style="color:#96b5b4;">as_ptr</span><span>(), source.</span><span style="color:#96b5b4;">len</span><span>());
+</span><span>    }
+</span><span>    ptr
+</span><span>}
+</span><span>
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">layout</span><span>(</span><span style="color:#bf616a;">len</span><span>: </span><span style="color:#b48ead;">usize</span><span>) -&gt; alloc::Layout {
+</span><span>    alloc::Layout::array::&lt;</span><span style="color:#b48ead;">u8</span><span>&gt;(len)
+</span><span>        .</span><span style="color:#96b5b4;">expect</span><span>(&quot;</span><span style="color:#a3be8c;">a valid layout for an array</span><span>&quot;)
+</span><span>        .</span><span style="color:#96b5b4;">pad_to_align</span><span>()
+</span><span>}
+</span></code></pre>
+<p><code>copy_slice</code> allocates an array of bytes on the heap and then copies the source byte slice into our new array, and returns the pointer.</p>
+<h2 id="instantiation"><a class="zola-anchor" href="#instantiation" aria-label="Anchor link for: instantiation">Instantiation</a></h2>
+<p>To create an <code>UmbraString</code> we'll take an existing <code>&amp;str</code> as input. This operation could possibly fail if the input string is too long. Let's ignore that for now and just <code>assert!</code> that the string is not too long:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">impl </span><span>From&lt;</span><span style="color:#b48ead;">str</span><span>&gt; </span><span style="color:#b48ead;">for </span><span>UmbraString {
+</span><span>    </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">from</span><span>(</span><span style="color:#bf616a;">src</span><span>: &amp;src) -&gt; </span><span style="color:#b48ead;">Self </span><span>{
+</span><span>        assert!(src.</span><span style="color:#96b5b4;">len</span><span>() &lt;= </span><span style="color:#b48ead;">u16</span><span>::</span><span style="color:#d08770;">MAX </span><span>as </span><span style="color:#b48ead;">usize</span><span>);
+</span><span>        </span><span style="color:#b48ead;">let</span><span> len = src.</span><span style="color:#96b5b4;">len</span><span>();
+</span><span>
+</span><span>        </span><span style="color:#b48ead;">let mut</span><span> prefix = [</span><span style="color:#d08770;">0</span><span>; </span><span style="color:#d08770;">PREFIX_LEN</span><span>];
+</span><span>        </span><span style="color:#b48ead;">let</span><span> trailing = </span><span style="color:#b48ead;">if</span><span> len as </span><span style="color:#b48ead;">u16 </span><span>&lt;= </span><span style="color:#d08770;">INLINE_LEN </span><span>{
+</span><span>            </span><span style="color:#b48ead;">let</span><span> suffix = [</span><span style="color:#d08770;">0</span><span>; </span><span style="color:#d08770;">SUFFIX_LEN</span><span>];
+</span><span>            </span><span style="color:#b48ead;">if</span><span> len &lt;= </span><span style="color:#d08770;">PREFIX_LEN </span><span>{
+</span><span>                prefix[..len].</span><span style="color:#96b5b4;">copy_from_slice</span><span>(source);
+</span><span>            } </span><span style="color:#b48ead;">else </span><span>{
+</span><span>                prefix.</span><span style="color:#96b5b4;">copy_from_slice</span><span>(&amp;source[..</span><span style="color:#d08770;">PREFIX_LEN</span><span>]);
+</span><span>                suffix[..len - </span><span style="color:#d08770;">PREFIX_LEN</span><span>].</span><span style="color:#96b5b4;">copy_from_slice</span><span>(&amp;source[</span><span style="color:#d08770;">PREFIX_LEN</span><span>..]);
+</span><span>            }
+</span><span>
+</span><span>            Trailing { suffix }
+</span><span>        } </span><span style="color:#b48ead;">else </span><span>{
+</span><span>            </span><span style="color:#b48ead;">let</span><span> ptr = </span><span style="color:#96b5b4;">copy_slice</span><span>(source);
+</span><span>            Trailing { ptr: ManuallyDrop::new(ptr) }
+</span><span>        }
+</span><span>
+</span><span>        </span><span style="color:#b48ead;">Self </span><span>{
+</span><span>            len: len as </span><span style="color:#b48ead;">u16</span><span>,
+</span><span>            prefix,
+</span><span>            trailing
+</span><span>        }
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>For the short variant (<code>src.len() as u16 &lt;= INLINE_LEN</code>) we copy from the source byte slice into however much of the prefix and suffix slices we can fill and leave the rest as <code>0</code>s. (Note that <code>0</code> is a valid representation in UTF-8. See the section below on <code>FlagSet</code>s for more discussion on why this is important.)</p>
+<p>For the long variant we'll use our <code>copy_slice</code> helper from above to allocate a new byte array pointer.</p>
+<h2 id="reconstructing-a-byte-slice"><a class="zola-anchor" href="#reconstructing-a-byte-slice" aria-label="Anchor link for: reconstructing-a-byte-slice">Reconstructing a byte slice</a></h2>
+<p>Did you notice in our <code>copy_slice</code> helper function above that we copy the entire slice into a newly allocated array buffer instead of the part after the prefix? We copied <code>source</code> instead of <code>&amp;source[PREFIX_LEN..]</code>. You might think that we could save some space by only storing the remaining bytes after the prefix - and we could - but that would prevent us from recreating a <code>&amp;[u8]</code> or <code>&amp;str</code> from an <code>UmbraString</code>. Slices are <strong>contiguous</strong> memory chunks - array layouts in memory. We can't create a slice that starts in the <code>prefix</code> field and then continues by following a pointer. All of the data needs to be in one place.</p>
+<p>With that in mind, let's add a function to get our bytes back:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">use </span><span>core::{ptr, slice};
+</span><span>
+</span><span style="color:#b48ead;">impl </span><span>UmbraString {
+</span><span>    </span><span style="color:#b48ead;">pub fn </span><span style="color:#8fa1b3;">as_slice</span><span>(&amp;</span><span style="color:#bf616a;">self</span><span>) -&gt; &amp;[</span><span style="color:#b48ead;">u8</span><span>] {
+</span><span>        </span><span style="color:#b48ead;">let</span><span> ptr = </span><span style="color:#b48ead;">if </span><span style="color:#bf616a;">self</span><span>.len &lt;= </span><span style="color:#d08770;">INLINE_LEN </span><span>{
+</span><span>            </span><span style="color:#b48ead;">let</span><span> ptr = ptr::from_ref(</span><span style="color:#bf616a;">self</span><span>);
+</span><span>            </span><span style="color:#b48ead;">unsafe </span><span>{ ptr::addr_of!((*ptr).prefix) }.</span><span style="color:#96b5b4;">cast</span><span>()
+</span><span>        } </span><span style="color:#b48ead;">else </span><span>{
+</span><span>            </span><span style="color:#b48ead;">unsafe </span><span>{ </span><span style="color:#bf616a;">self</span><span>.trailing.ptr }.</span><span style="color:#96b5b4;">as_ptr</span><span>()
+</span><span>        };
+</span><span>
+</span><span>        </span><span style="color:#b48ead;">unsafe </span><span>{ slice::from_raw_parts(ptr, </span><span style="color:#bf616a;">self</span><span>.</span><span style="color:#96b5b4;">len</span><span>()) }
+</span><span>    }
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">pub fn </span><span style="color:#8fa1b3;">as_bytes</span><span>(&amp;</span><span style="color:#bf616a;">self</span><span>) -&gt; &amp;[</span><span style="color:#b48ead;">u8</span><span>] {
+</span><span>        </span><span style="color:#bf616a;">self</span><span>.</span><span style="color:#96b5b4;">as_slice</span><span>()
+</span><span>    }
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">pub fn </span><span style="color:#8fa1b3;">as_str</span><span>(&amp;</span><span style="color:#bf616a;">self</span><span>) -&gt; &amp;</span><span style="color:#b48ead;">str </span><span>{
+</span><span>        </span><span style="color:#b48ead;">unsafe </span><span>{ core::str::from_utf8_unchecked(</span><span style="color:#bf616a;">self</span><span>.</span><span style="color:#96b5b4;">as_slice</span><span>()) }
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>For inline Umbra strings our slice starts at the prefix field and ends either in the prefix field's array or in the suffix field's array depending on the length. The <code>#[repr(C)]</code> annotation on <code>UmbraString</code> and <code>Trailing</code> enforces that when represented in memory at runtime, the fields are in the same order as we define them, so we can safely assume that <code>prefix</code> comes before <code>suffix</code> and there's no space between. We can safely treat them as contiguous memory. For allocated strings we reconstruct the slice directly from our allocated buffer's pointer.</p>
+<p>Remember earlier when we said that slices were basically <code>(*const T, usize)</code>? That's what we give to <code>slice::from_raw_parts</code> - a pointer to an array layout in memory and a length - and we get a fat pointer.</p>
+<h2 id="clone"><a class="zola-anchor" href="#clone" aria-label="Anchor link for: clone">Clone</a></h2>
+<p>Cloning the string is similar to how we initially created one from a <code>&amp;str</code>.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">impl </span><span>Clone </span><span style="color:#b48ead;">for </span><span>UmbraString {
+</span><span>    </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">clone</span><span>(&amp;</span><span style="color:#bf616a;">self</span><span>) -&gt; </span><span style="color:#b48ead;">Self </span><span>{
+</span><span>        </span><span style="color:#b48ead;">let</span><span> trailing = </span><span style="color:#b48ead;">if </span><span style="color:#bf616a;">self</span><span>.len &lt;= </span><span style="color:#d08770;">INLINE_LEN </span><span>{
+</span><span>            </span><span style="color:#b48ead;">let</span><span> suffix = </span><span style="color:#b48ead;">unsafe </span><span>{ </span><span style="color:#bf616a;">self</span><span>.trailing.suffix };
+</span><span>            Trailing { suffix }
+</span><span>        } </span><span style="color:#b48ead;">else </span><span>{
+</span><span>            </span><span style="color:#b48ead;">let</span><span> ptr = </span><span style="color:#96b5b4;">copy_slice</span><span>(</span><span style="color:#bf616a;">self</span><span>.</span><span style="color:#96b5b4;">as_slice</span><span>());
+</span><span>            Trailing { ptr: ManuallyDrop::new(ptr) }
+</span><span>        };
+</span><span>
+</span><span>        </span><span style="color:#b48ead;">Self </span><span>{
+</span><span>            len: </span><span style="color:#bf616a;">self</span><span>.len,
+</span><span>            prefix: </span><span style="color:#bf616a;">self</span><span>.prefix,
+</span><span>            trailing,
+</span><span>        }
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>The <code>len</code> and <code>prefix</code> fields are copied. For the inline version we copy the <code>suffix</code> array too, and for the allocated version we create a new allocation and copy <code>self</code>'s buffer.</p>
+<p>Another nice property of this type you might notice here: for strings short enough to be inlined, <code>Clone</code> is actually a <code>Copy</code> - no allocation required.</p>
+<h2 id="drop"><a class="zola-anchor" href="#drop" aria-label="Anchor link for: drop">Drop</a></h2>
+<p>Now on to <code>Drop</code>. We need to deallocate our allocated buffer for the long variant. For the short variant we do nothing: <code>Copy</code> types are cleaned up without any mention in <code>Drop</code>.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">impl </span><span>Drop </span><span style="color:#b48ead;">for </span><span>UmbraString {
+</span><span>    </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">drop</span><span>(&amp;</span><span style="color:#bf616a;">self</span><span>) {
+</span><span>        </span><span style="color:#b48ead;">if </span><span style="color:#bf616a;">self</span><span>.len &gt; </span><span style="color:#d08770;">INLINE_LEN </span><span>{
+</span><span>            </span><span style="color:#b48ead;">let</span><span> layout = </span><span style="color:#96b5b4;">layout</span><span>(</span><span style="color:#bf616a;">self</span><span>.</span><span style="color:#96b5b4;">len</span><span>());
+</span><span>            </span><span style="color:#b48ead;">let</span><span> ptr = </span><span style="color:#b48ead;">unsafe </span><span>{ </span><span style="color:#bf616a;">self</span><span>.trailing.ptr }.</span><span style="color:#96b5b4;">as_ptr</span><span>();
+</span><span>            </span><span style="color:#b48ead;">unsafe </span><span>{ alloc::dealloc(ptr.</span><span style="color:#96b5b4;">cast</span><span>(), layout);
+</span><span>        }
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<h2 id="eq"><a class="zola-anchor" href="#eq" aria-label="Anchor link for: eq"><code>Eq</code></a></h2>
+<p>As the CedarDB article notes, we can optimize the comparison of Umbra strings. To do that we cast the <code>len</code> and <code>prefix</code> chunks together as a <code>usize</code> and compare those, and then compare the remaining parts of the string if that first word of memory is equal. We don't use the <code>Eq</code> optimization in Spellbook since Umbra strings are only used for the lookup table representation (we use <code>PartialEq&lt;str&gt; for UmbraString</code> instead), but it's interesting from an academic perspective.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">impl </span><span>PartialEq&lt;</span><span style="color:#b48ead;">Self</span><span>&gt; </span><span style="color:#b48ead;">for </span><span>UmbraString {
+</span><span>    </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">eq</span><span>(&amp;</span><span style="color:#bf616a;">self</span><span>, </span><span style="color:#bf616a;">other</span><span>: &amp;</span><span style="color:#b48ead;">Self</span><span>) -&gt; </span><span style="color:#b48ead;">bool </span><span>{
+</span><span>        </span><span style="color:#b48ead;">let</span><span> self_len_and_prefix = ptr::from_ref(</span><span style="color:#bf616a;">self</span><span>).cast::&lt;</span><span style="color:#b48ead;">usize</span><span>&gt;();
+</span><span>        </span><span style="color:#b48ead;">let</span><span> other_len_and_prefix = ptr::from_ref(other).cast::&lt;</span><span style="color:#b48ead;">usize</span><span>&gt;();
+</span><span>        </span><span style="color:#b48ead;">if unsafe </span><span>{ *self_len_and_prefix != *other_len_and_prefix } {
+</span><span>            </span><span style="color:#b48ead;">return </span><span style="color:#d08770;">false</span><span>;
+</span><span>        }
+</span><span>
+</span><span>        </span><span style="color:#65737e;">// The lengths and prefixes are equal. Now compare the rest.
+</span><span>        </span><span style="color:#b48ead;">if </span><span style="color:#bf616a;">self</span><span>.len &lt;= </span><span style="color:#d08770;">INLINE_LEN </span><span>{
+</span><span>            </span><span style="color:#65737e;">// We can use the same trick as above: compare the suffixes as one big chunk.
+</span><span>            </span><span style="color:#b48ead;">let</span><span> self_ptr = ptr::from_ref(</span><span style="color:#bf616a;">self</span><span>);
+</span><span>            </span><span style="color:#b48ead;">let</span><span> self_suffix = </span><span style="color:#b48ead;">unsafe </span><span>{ ptr::addr_of!((*self_ptr).trailing.suffix) }.cast::&lt;</span><span style="color:#b48ead;">usize</span><span>&gt;();
+</span><span>            </span><span style="color:#b48ead;">let</span><span> other_ptr = ptr::from_ref(other);
+</span><span>            </span><span style="color:#b48ead;">let</span><span> other_suffix = </span><span style="color:#b48ead;">unsafe </span><span>{ ptr::addr_of!((*other_ptr).trailing.suffix) }.cast::&lt;</span><span style="color:#b48ead;">usize</span><span>&gt;();
+</span><span>
+</span><span>            </span><span style="color:#b48ead;">unsafe </span><span>{ *self_suffix == *other_suffix }
+</span><span>        } </span><span style="color:#b48ead;">else </span><span>{
+</span><span>            </span><span style="color:#b48ead;">let</span><span> suffix_len = </span><span style="color:#bf616a;">self</span><span>.</span><span style="color:#96b5b4;">len</span><span>() - </span><span style="color:#d08770;">PREFIX_LEN</span><span>;
+</span><span>            </span><span style="color:#b48ead;">let</span><span> self_rest = </span><span style="color:#b48ead;">unsafe </span><span>{
+</span><span>                slice::from_raw_parts(
+</span><span>                    </span><span style="color:#bf616a;">self</span><span>.trailing.ptr.</span><span style="color:#96b5b4;">as_ptr</span><span>().</span><span style="color:#96b5b4;">add</span><span>(</span><span style="color:#d08770;">PREFIX_LEN</span><span>),
+</span><span>                    suffix_len
+</span><span>                )
+</span><span>            };
+</span><span>            </span><span style="color:#b48ead;">let</span><span> other_rest = </span><span style="color:#b48ead;">unsafe </span><span>{
+</span><span>                slice::from_raw_parts(
+</span><span>                    other.trailing.ptr.</span><span style="color:#96b5b4;">as_ptr</span><span>().</span><span style="color:#96b5b4;">add</span><span>(</span><span style="color:#d08770;">PREFIX_LEN</span><span>),
+</span><span>                    suffix_len
+</span><span>                )
+</span><span>            };
+</span><span>
+</span><span>            self_rest == other_rest
+</span><span>        }
+</span><span>    }
+</span><span>}
+</span><span>
+</span><span style="color:#b48ead;">impl </span><span>Eq </span><span style="color:#b48ead;">for </span><span>UmbraString {}
+</span></code></pre>
+<p>We start by comparing the length and prefix parts together with one <code>usize</code> comparison. If that is equal then we need to check the rest. For the short variant we can use another <code>usize</code> comparison to check the rest. For the long variant we can reconstruct the byte slices for the remaining bytes and compare those.</p>
+<p>We can actually make this a little better. We know in that <code>else</code> block that the lengths of <code>self</code> and <code>other</code> are equal but comparing the byte slices (<code>PartialEq&lt;Self&gt; for &amp;[T]</code>) will repeat that check. We can skip that check and do the comparison directly. Since <code>u8</code>s are byte-wise equal to each other, we can use <code>memcmp</code> like the standard library does.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">impl </span><span>PartialEq&lt;</span><span style="color:#b48ead;">Self</span><span>&gt; </span><span style="color:#b48ead;">for </span><span>UmbraString {
+</span><span>    </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">eq</span><span>(&amp;</span><span style="color:#bf616a;">self</span><span>, </span><span style="color:#bf616a;">other</span><span>: &amp;</span><span style="color:#b48ead;">Self</span><span>) -&gt; </span><span style="color:#b48ead;">bool </span><span>{
+</span><span>        </span><span style="color:#65737e;">// ... unchanged ...
+</span><span>        </span><span style="color:#b48ead;">if </span><span style="color:#bf616a;">self</span><span>.len &lt;= </span><span style="color:#d08770;">INLINE_LEN </span><span>{
+</span><span>            </span><span style="color:#65737e;">// ... unchanged ...
+</span><span>        } </span><span style="color:#b48ead;">else </span><span>{
+</span><span>            </span><span style="color:#b48ead;">let</span><span> suffix_n_bytes = </span><span style="color:#bf616a;">self</span><span>.</span><span style="color:#96b5b4;">len</span><span>() - </span><span style="color:#d08770;">PREFIX_LEN</span><span>;
+</span><span>            </span><span style="color:#b48ead;">unsafe </span><span>{
+</span><span>                </span><span style="color:#96b5b4;">memcmp</span><span>(
+</span><span>                    </span><span style="color:#bf616a;">self</span><span>.trailing.ptr.</span><span style="color:#96b5b4;">as_ptr</span><span>().</span><span style="color:#96b5b4;">add</span><span>(</span><span style="color:#d08770;">PREFIX_LEN</span><span>),
+</span><span>                    other.trailing.ptr.</span><span style="color:#96b5b4;">as_ptr</span><span>().</span><span style="color:#96b5b4;">add</span><span>(</span><span style="color:#d08770;">PREFIX_LEN</span><span>),
+</span><span>                    suffix_n_bytes,
+</span><span>                ) == </span><span style="color:#d08770;">0
+</span><span>            }
+</span><span>        }
+</span><span>    }
+</span><span>}
+</span><span>
+</span><span style="color:#65737e;">// Snipped from `library/core/src/slice/cmp.rs`:
+</span><span style="color:#b48ead;">extern </span><span>&quot;</span><span style="color:#a3be8c;">C</span><span>&quot; {
+</span><span>    </span><span style="color:#65737e;">/// Calls implementation provided memcmp.
+</span><span>    </span><span style="color:#65737e;">///
+</span><span>    </span><span style="color:#65737e;">/// Interprets the data as u8.
+</span><span>    </span><span style="color:#65737e;">///
+</span><span>    </span><span style="color:#65737e;">/// Returns 0 for equal, &lt; 0 for less than and &gt; 0 for greater
+</span><span>    </span><span style="color:#65737e;">/// than.
+</span><span>    </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">memcmp</span><span>(</span><span style="color:#bf616a;">s1</span><span>: </span><span style="color:#b48ead;">*const u8</span><span>, </span><span style="color:#bf616a;">s2</span><span>: </span><span style="color:#b48ead;">*const u8</span><span>, </span><span style="color:#bf616a;">n</span><span>: </span><span style="color:#b48ead;">usize</span><span>) -&gt; core::ffi::c_int;
+</span><span>}
+</span></code></pre>
+<h1 id="benchmarking-and-memory-analysis"><a class="zola-anchor" href="#benchmarking-and-memory-analysis" aria-label="Anchor link for: benchmarking-and-memory-analysis">Benchmarking and memory analysis</a></h1>
+<p>Speed benchmarks are unfortunately not very interesting. Spellbook doesn't take advantage of the <code>Eq</code> comparison so we only end up paying for the conversion in <code>UmbraString::as_slice</code>. This is nearly imperceptibly slower than <code>Box&lt;str&gt;::as_bytes</code>. Using <code>cargo bench</code> and simple benchmarks like so:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#65737e;">// NOTE: this needs nightly.
+</span><span>#![</span><span style="color:#bf616a;">feature</span><span>(test)]
+</span><span style="color:#b48ead;">extern crate</span><span> test;
+</span><span style="color:#b48ead;">use </span><span>test::{black_box, Bencher};
+</span><span style="color:#b48ead;">use </span><span>spellbook::umbra_slice::UmbraString;
+</span><span>
+</span><span>#[</span><span style="color:#bf616a;">bench</span><span>]
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">umbra_str_as_bytes</span><span>(</span><span style="color:#bf616a;">b</span><span>: &amp;</span><span style="color:#b48ead;">mut</span><span> Bencher) {
+</span><span>    </span><span style="color:#b48ead;">let</span><span> s: UmbraString = &quot;</span><span style="color:#a3be8c;">a</span><span>&quot;.</span><span style="color:#96b5b4;">repeat</span><span>(</span><span style="color:#d08770;">50</span><span>).</span><span style="color:#96b5b4;">into</span><span>();
+</span><span>    b.</span><span style="color:#96b5b4;">iter</span><span>(|| </span><span style="color:#96b5b4;">black_box</span><span>(&amp;s).</span><span style="color:#96b5b4;">as_bytes</span><span>());
+</span><span>}
+</span><span>#[</span><span style="color:#bf616a;">bench</span><span>]
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">boxed_str_as_bytes</span><span>(</span><span style="color:#bf616a;">b</span><span>: &amp;</span><span style="color:#b48ead;">mut</span><span> Bencher) {
+</span><span>    </span><span style="color:#b48ead;">let</span><span> s: Box&lt;</span><span style="color:#b48ead;">str</span><span>&gt; = &quot;</span><span style="color:#a3be8c;">a</span><span>&quot;.</span><span style="color:#96b5b4;">repeat</span><span>(</span><span style="color:#d08770;">50</span><span>).</span><span style="color:#96b5b4;">into</span><span>();
+</span><span>    b.</span><span style="color:#96b5b4;">iter</span><span>(|| </span><span style="color:#96b5b4;">black_box</span><span>(&amp;s).</span><span style="color:#96b5b4;">as_bytes</span><span>());
+</span><span>}
+</span></code></pre>
+<p><code>umbra_str_as_bytes</code> measures at around 0.69 ns/iter on my machine while <code>boxed_str_as_bytes</code> measures around 0.46 ns/iter. We would need to be converting to bytes very very often to notice the difference, and Spellbook doesn't ultimately convert that often. The benchmarks for Spellbook's <code>check</code> function don't change perceptibly.</p>
+<p>Where we see the difference is in memory usage and heap interaction. Measuring heap allocations is not as straightforward in Rust as you might imagine if you're coming from garbage collected languages: garbage collectors need to track the heap to know when to clean up garbage so there's typically an interface to query heap information. Not so with Rust. <a href="https://rust-analyzer.github.io/blog/2020/12/04/measuring-memory-usage-in-rust.html">Measuring Memory Usage in Rust</a> from the <code>rust-analyzer</code> blog points out a few options. Of them I'm partial to <code>valgrind</code>'s <a href="https://valgrind.org/docs/manual/dh-manual.html">DHAT</a> tool since it's straightforward to use.</p>
+<p>We'll run a small example program that creates the <code>en_US</code> dictionary and checks a single word:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">cargo</span><span> run</span><span style="color:#bf616a;"> --release --example</span><span> check hello
+</span><span style="color:#bf616a;">valgrind --tool</span><span>=dhat ./target/release/examples/check hello
+</span></code></pre>
+<p>Before (<code>Box&lt;str&gt;</code> stems), DHAT reports:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>Total:     3,086,190 bytes in 130,988 blocks
+</span><span>At t-gmax: 2,717,005 bytes in 90,410 blocks
+</span><span>At t-end:  0 bytes in 0 blocks
+</span><span>Reads:     3,923,475 bytes
+</span><span>Writes:    2,610,900 bytes
+</span></code></pre>
+<p>After (<code>UmbraString</code> stems):</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>Total:     2,714,546 bytes in 82,475 blocks
+</span><span>At t-gmax: 2,343,567 bytes in 41,487 blocks
+</span><span>At t-end:  0 bytes in 0 blocks
+</span><span>Reads:     2,332,587 bytes
+</span><span>Writes:    2,239,256 bytes
+</span></code></pre>
+<p>We've saved around 300kb of total runtime memory (12%) with the change, plus we're using fewer blocks of memory and reading from and writing to the heap less. Success!</p>
+<p>We can go further though if we apply this "German string" optimization to another oft-instantiated type in the lookup table: the <code>FlagSet</code>.</p>
+<h1 id="bonus-points-the-flagset-can-also-be-german"><a class="zola-anchor" href="#bonus-points-the-flagset-can-also-be-german" aria-label="Anchor link for: bonus-points-the-flagset-can-also-be-german">Bonus points: the FlagSet can also be German!</a></h1>
+<p>Remember way back at the beginning of the post when were discussing the lookup table and how it's like a <code>HashMap&lt;String, HashSet&lt;Flag&gt;&gt;</code>? The <code>HashSet&lt;Flag&gt;</code> part is defined in the Spellbook source as a <code>FlagSet</code> newtype wrapper. It doesn't wrap a <code>HashSet&lt;Flag&gt;</code> though - hash sets can be wasteful in terms of memory usage. Before the Umbra string optimization they were represented as <code>Box&lt;[Flag]&gt;</code>. For short slices, <code>slice::contains</code> or <code>slice::binary_search</code> are very fast at determining set membership.</p>
+<p>Like stems, flagsets are usually short. If we measure a histogram of the number of flags used per stem in all dictionaries in <code>LibreOffice/dictionaries</code>, we see the distribution skew <strong>very</strong> short:</p>
+<table><thead><tr><th>Number of flags</th><th>Percentile (rounded)</th></tr></thead><tbody>
+<tr><td>0</td><td>32</td></tr>
+<tr><td>1</td><td>69</td></tr>
+<tr><td>2</td><td>80</td></tr>
+<tr><td>3</td><td>86</td></tr>
+<tr><td>4</td><td>90</td></tr>
+<tr><td>...</td><td>...</td></tr>
+<tr><td>7</td><td>96</td></tr>
+<tr><td>...</td><td>...</td></tr>
+</tbody></table>
+<p>One crazy dictionary used 271 flags on a single stem.</p>
+<p>So if we can store some number of flags inline like we did with bytes an Umbra string, we can avoid allocations in the vast majority of cases.</p>
+<p>Rather than an "Umbra string" we'll be constructing a more generic "Umbra slice" type. In fact we can imagine that the <code>UmbraString</code> is just a special case of an <code>UmbraSlice</code> around bytes:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#65737e;">// These bytes are valid UTF-8.
+</span><span style="color:#b48ead;">struct </span><span>UmbraString(UmbraSlice&lt;</span><span style="color:#b48ead;">u8</span><span>&gt;);
+</span></code></pre>
+<p>The new type comes with new challenges though. For... <em>reasons</em>... <code>Flag</code> is defined as:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">type </span><span>Flag = core::num::NonZeroU16;
+</span></code></pre>
+<p>So rather than dealing with bytes we need to deal with 16-bit integers. Ok, that changes the arithmetic a little:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#65737e;">// We can fit 3 u16s in the prefix.
+</span><span style="color:#b48ead;">const fn </span><span style="color:#8fa1b3;">prefix_len</span><span>&lt;T&gt;() -&gt; </span><span style="color:#b48ead;">usize </span><span>{
+</span><span>    </span><span style="color:#65737e;">// Remove 16 bits for the `len`.
+</span><span>    (size_of::&lt;</span><span style="color:#b48ead;">usize</span><span>&gt;() - size_of::&lt;</span><span style="color:#b48ead;">u16</span><span>&gt;()) / size_of::&lt;T&gt;()
+</span><span>}
+</span><span style="color:#65737e;">// And 4 in the suffix.
+</span><span style="color:#b48ead;">const fn </span><span style="color:#8fa1b3;">suffix_len</span><span>&lt;T&gt;() -&gt; </span><span style="color:#b48ead;">usize </span><span>{
+</span><span>    size_of::&lt;</span><span style="color:#b48ead;">usize</span><span>&gt;() / size_of::&lt;T&gt;()
+</span><span>}
+</span></code></pre>
+<p>We can fit up to 7 flags inline. That's really awesome: it'll cover up to 96% of real-world flagsets and should save us many many really tiny allocations.</p>
+<h2 id="pitfalls-and-maybeuninit-t"><a class="zola-anchor" href="#pitfalls-and-maybeuninit-t" aria-label="Anchor link for: pitfalls-and-maybeuninit-t">Pitfalls and <code>MaybeUninit&lt;T&gt;</code></a></h2>
+<p>We're talking in terms of <code>u16</code> above but our type is actually a <code>NonZeroU16</code>. They have the same size and layout but <code>NonZeroU16</code> can't be <code>0u16</code>. The challenge is the <code>NonZero</code> nature: the zeroed bit pattern is not a valid representation, and <code>Default for NonZeroU16</code> is not a thing. Places where we wrote <code>[0u8; N]</code> above have to be rewritten anyways since we're changing the type, but we can't just say:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#65737e;">// 💣 UNDEFINED BEHAVIOR!!
+</span><span style="color:#b48ead;">let mut</span><span> prefix: [T; </span><span style="color:#d08770;">PREFIX_LEN</span><span>] = </span><span style="color:#b48ead;">unsafe </span><span>{ core::mem::zeroed() };
+</span><span style="color:#b48ead;">let mut</span><span> suffix: [T; </span><span style="color:#d08770;">SUFFIX_LEN</span><span>] = </span><span style="color:#b48ead;">unsafe </span><span>{ core::mem::zeroed() };
+</span></code></pre>
+<p>You can't say that a value is a <code>NonZeroU16</code> and at the same time represent it with zeroes, even if you never formally access those elements of the array. The proper way to encode what we're trying to do is to use <a href="https://doc.rust-lang.org/std/mem/union.MaybeUninit.html">MaybeUninit</a>.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">use </span><span>core::mem::MaybeUninit;
+</span><span style="color:#b48ead;">use crate</span><span>::Flag;
+</span><span>
+</span><span style="color:#65737e;">// Unfortunately we cannot call `prefix_len`/`suffix_len` within
+</span><span style="color:#65737e;">// the definition of `UmbraSlice` so we need to use const generics.
+</span><span style="color:#65737e;">// The result is that this type is not pretty :/
+</span><span style="color:#b48ead;">pub type </span><span>FlagSlice = UmbraSlice&lt;
+</span><span>    Flag,
+</span><span>    </span><span style="background-color:#bf616a;color:#2b303b;">{</span><span> prefix_len::&lt;Flag&gt;() },
+</span><span>    { suffix_len::&lt;Flag&gt;() },
+</span><span>&gt;;
+</span><span>
+</span><span>#[</span><span style="color:#bf616a;">repr</span><span>(C)]
+</span><span style="color:#b48ead;">pub struct </span><span>UmbraSlice&lt;T: Copy, </span><span style="color:#b48ead;">const</span><span> PREFIX_LEN: </span><span style="color:#b48ead;">usize</span><span>, </span><span style="color:#b48ead;">const</span><span> SUFFIX_LEN: </span><span style="color:#b48ead;">usize</span><span>&gt; {
+</span><span>    </span><span style="color:#bf616a;">len</span><span>: </span><span style="color:#b48ead;">u16</span><span>,
+</span><span>    </span><span style="color:#bf616a;">prefix</span><span>: [MaybeUninit&lt;T&gt;; PREFIX_LEN],
+</span><span>    </span><span style="color:#bf616a;">trailing</span><span>: Trailing&lt;T, SUFFIX_LEN&gt;,
+</span><span>}
+</span><span>
+</span><span>#[</span><span style="color:#bf616a;">repr</span><span>(C)]
+</span><span>union Trailing&lt;T: Copy&gt;, </span><span style="color:#b48ead;">const </span><span style="color:#d08770;">SUFFIX_LEN</span><span>: </span><span style="color:#b48ead;">usize</span><span>&gt; {
+</span><span>    suffix: [MaybeUninit&lt;T&gt;; </span><span style="color:#d08770;">SUFFIX_LEN</span><span>],
+</span><span>    ptr: ManuallyDrop&lt;NonNull&lt;T&gt;&gt;,
+</span><span>}
+</span><span>
+</span><span style="color:#b48ead;">impl</span><span>&lt;T: Copy, </span><span style="color:#b48ead;">const</span><span> PREFIX_LEN: </span><span style="color:#b48ead;">usize</span><span>, </span><span style="color:#b48ead;">const</span><span> SUFFIX_LEN: </span><span style="color:#b48ead;">usize</span><span>&gt;
+</span><span>    UmbraSlice&lt;T, PREFIX_LEN, SUFFIX_LEN&gt;
+</span><span>{
+</span><span>    </span><span style="color:#b48ead;">const </span><span style="color:#d08770;">INLINE_LEN</span><span>: </span><span style="color:#b48ead;">u16 </span><span>= (</span><span style="color:#d08770;">PREFIX_LEN </span><span>+ </span><span style="color:#d08770;">SUFFIX_LEN</span><span>) as </span><span style="color:#b48ead;">u16</span><span>;
+</span><span>}
+</span></code></pre>
+<p>This makes the type slightly harder to work with: when accessing the <code>prefix</code> and <code>suffix</code> arrays we need to be sure to <code>ptr::cast()</code> from a pointer of <code>MaybeUninit&lt;T&gt;</code> to a pointer of <code>T</code>. When initializing the slice in our <code>From</code> implementation we need to transmute the source slice from <code>&amp;[T]</code> to <code>&amp;[MaybeUninit&lt;T&gt;]</code> before we can copy the data:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">copy_to_slice</span><span>&lt;T: Copy&gt;(</span><span style="color:#bf616a;">dst</span><span>: &amp;</span><span style="color:#b48ead;">mut</span><span> [MaybeUninit&lt;T&gt;], </span><span style="color:#bf616a;">src</span><span>: &amp;[T]) {
+</span><span>    </span><span style="color:#65737e;">// SAFETY: &amp;[T] and &amp;[MaybeUninit&lt;T&gt;] have the same layout.
+</span><span>    </span><span style="color:#b48ead;">let</span><span> uninit_src: &amp;[MaybeUninit&lt;T&gt;] = </span><span style="color:#b48ead;">unsafe </span><span>{ core::mem::transmute(src) };
+</span><span>    dst.</span><span style="color:#96b5b4;">copy_from_slice</span><span>(uninit_src);
+</span><span>}
+</span></code></pre>
+<h2 id="zeroed-bit-patterns"><a class="zola-anchor" href="#zeroed-bit-patterns" aria-label="Anchor link for: zeroed-bit-patterns">Zeroed bit patterns</a></h2>
+<p>We also need to be <strong>very</strong> careful to initialize <code>prefix</code> and <code>suffix</code> with <code>MaybeUninit&lt;T&gt;::zeroed()</code> rather than <code>MaybeUninit&lt;T&gt;::uninit()</code>. Why? Remember that our <code>PartialEq&lt;Self&gt;</code> implementation compares the prefix array and maybe also the suffix array for the short variant. Those arrays might contain uninitialized data if the length of the slice is shorter than the <code>INLINE_LEN</code> or <code>PREFIX_LEN</code>. <code>MaybeUninit&lt;T&gt;::zeroed()</code> works around this because comparing zeroed bits is defined behavior. The important distinction is that we are not treating the zeroed memory as <code>NonZeroU16</code>. That is undefined behavior. If we treat it as a <code>usize</code> though, the zeroed bit pattern is valid and the behavior is defined. It's also accurate as long as <code>T</code> is <code>Copy</code>.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#65737e;">// Note that `T` is not bound by `Eq`.
+</span><span style="color:#65737e;">// We only ever compare bits, not `T`s.
+</span><span>
+</span><span style="color:#b48ead;">impl</span><span>&lt;T: Copy, </span><span style="color:#b48ead;">const</span><span> PREFIX_LEN: </span><span style="color:#b48ead;">usize</span><span>, </span><span style="color:#b48ead;">const</span><span> SUFFIX_LEN: </span><span style="color:#b48ead;">usize</span><span>&gt; PartialEq&lt;</span><span style="color:#b48ead;">Self</span><span>&gt;
+</span><span>    for UmbraSlice&lt;T, PREFIX_LEN, SUFFIX_LEN&gt;
+</span><span>{
+</span><span>    </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">eq</span><span>(&amp;</span><span style="color:#bf616a;">self</span><span>, </span><span style="color:#bf616a;">other</span><span>: &amp;</span><span style="color:#b48ead;">Self</span><span>) -&gt; </span><span style="color:#b48ead;">bool </span><span>{
+</span><span>        </span><span style="color:#65737e;">// SAFETY: the `prefix` field is created with `MaybeUninit::zeroed` memory, so even
+</span><span>        </span><span style="color:#65737e;">// if the slice has fewer than `PREFIX_LEN` elements, comparing the uninitialized
+</span><span>        </span><span style="color:#65737e;">// memory is defined behavior, and it is accurate since `T` is `Copy`.
+</span><span>        </span><span style="color:#b48ead;">let</span><span> self_len_and_prefix = ptr::from_ref(</span><span style="color:#bf616a;">self</span><span>).cast::&lt;</span><span style="color:#b48ead;">usize</span><span>&gt;();
+</span><span>        </span><span style="color:#b48ead;">let</span><span> other_len_and_prefix = ptr::from_ref(other).cast::&lt;</span><span style="color:#b48ead;">usize</span><span>&gt;();
+</span><span>        </span><span style="color:#b48ead;">if unsafe </span><span>{ *self_len_and_prefix != *other_len_and_prefix } {
+</span><span>            </span><span style="color:#b48ead;">return </span><span style="color:#d08770;">false</span><span>;
+</span><span>        }
+</span><span>
+</span><span>        </span><span style="color:#65737e;">// ... compare suffixes ...
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<h2 id="null-pointer-optimization-and-strange-behavior"><a class="zola-anchor" href="#null-pointer-optimization-and-strange-behavior" aria-label="Anchor link for: null-pointer-optimization-and-strange-behavior">Null pointer optimization and strange behavior</a></h2>
+<p>What exactly can go wrong if you don't use <code>MaybeUninit&lt;T&gt;</code>? The compiler can see that <code>NonZeroU16</code> cannot ever be a zeroed bit pattern and it can design the layouts for other types using <code>FlagSlice</code> around that. If we designed our type like this:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[</span><span style="color:#bf616a;">repr</span><span>(C)]
+</span><span style="color:#b48ead;">struct </span><span>FlagSlice {
+</span><span>    </span><span style="color:#bf616a;">len</span><span>: </span><span style="color:#b48ead;">u16</span><span>,
+</span><span>    </span><span style="color:#bf616a;">prefix</span><span>: [Flag; PREFIX_LEN],
+</span><span>    </span><span style="color:#bf616a;">trailing</span><span>: Trailing,
+</span><span>}
+</span><span>
+</span><span>#[</span><span style="color:#bf616a;">repr</span><span>(C)]
+</span><span>union Trailing {
+</span><span>    suffix: [Flag; </span><span style="color:#d08770;">SUFFIX_LEN</span><span>],
+</span><span>    ptr: ManuallyDrop&lt;NonNull&lt;Flag&gt;&gt;,
+</span><span>}
+</span></code></pre>
+<p>Then <code>FlagSlice</code> is eligible for the <a href="https://doc.rust-lang.org/std/option/index.html#representation">null pointer memory layout optimization</a>. The compiler can tell that the zero bit pattern is not a valid representation for the struct and so it can try to fit other information in that representation, like whether an <code>Option&lt;T&gt;</code> is <code>Some</code> or <code>None</code>. It's a really handy optimization that makes <code>size_of::&lt;Option&lt;T&gt;&gt;() == size_of::&lt;T&gt;()</code> - you don't pay for the option. But how would you represent the empty flag slice?</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#65737e;">// 💣 UNDEFINED BEHAVIOR!!
+</span><span style="color:#b48ead;">impl </span><span>Default </span><span style="color:#b48ead;">for </span><span>FlagSlice {
+</span><span>    </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">default</span><span>() -&gt; </span><span style="color:#b48ead;">Self </span><span>{
+</span><span>        </span><span style="color:#b48ead;">Self </span><span>{
+</span><span>            len: </span><span style="color:#d08770;">0</span><span>,
+</span><span>            prefix: </span><span style="color:#b48ead;">unsafe </span><span>{ core::mem::zeroed() },
+</span><span>            trailing: Trailing {
+</span><span>                suffix: </span><span style="color:#b48ead;">unsafe </span><span>{ core::mem::zeroed() },
+</span><span>            }
+</span><span>        }
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>The length is zero, the prefix is zeroes, the suffix is zeroes. The whole struct is zeroes! With this representation, <code>Option::&lt;FlagSlice&gt;::None</code> is exactly the same as <code>FlagSlice::default()</code>, causing your code to behave <em>weirdly</em>. Suddenly <code>Some(FlagSlice::default()).is_some()</code> is <code>false</code>! 🥴</p>
+<p>While this pitfall seems scary and hard to debug, <a href="https://github.com/rust-lang/miri">Miri</a> has got your back. Write types without the <code>MaybeUninit&lt;T&gt;</code> wrapper and <code>cargo miri test</code> will helpfully point out that you're opening yourself up to undefined behavior.</p>
+<h2 id="flagslice-memory-savings"><a class="zola-anchor" href="#flagslice-memory-savings" aria-label="Anchor link for: flagslice-memory-savings">FlagSlice Memory Savings</a></h2>
+<p>Rerunning the same example from above, DHAT reports:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>Total:     2,584,850 bytes in 44,741 blocks
+</span><span>At t-gmax: 2,190,833 bytes in 947 blocks
+</span><span>At t-end:  0 bytes in 0 blocks
+</span><span>Reads:     1,733,361 bytes
+</span><span>Writes:    2,109,560 bytes
+</span></code></pre>
+<p>So to compare:</p>
+<table><thead><tr><th>Stem + FlagSet</th><th>Total</th><th>At t-gmax</th><th>Reads (B)</th><th>Writes (B)</th></tr></thead><tbody>
+<tr><td><code>Box&lt;str&gt;</code> + <code>Box&lt;[Flag]&gt;</code></td><td>3,086,190 bytes in 130,988 blocks</td><td>2,717,005 bytes in 90,410 blocks</td><td>3,923,475</td><td>2,610,900</td></tr>
+<tr><td><code>UmbraString</code> + <code>Box&lt;[Flag]&gt;</code></td><td>2,714,546 bytes in 82,475 blocks</td><td>2,343,567 bytes in 41,487 blocks</td><td>2,332,587</td><td>2,239,256</td></tr>
+<tr><td><code>UmbraString</code> + <code>FlagSlice</code></td><td>2,584,850 bytes in 44,741 blocks</td><td>2,190,833 bytes in 947 blocks</td><td>1,733,361</td><td>2,109,560</td></tr>
+</tbody></table>
+<p>These are some respectable savings! We've cut out about a half of a megabyte of total memory, used far fewer allocations (blocks) and write to the heap a fair amount less. Plus we read from the heap less than half as much as we did before the changes.</p>
+<p>Not every dictionary will see the same savings, though: some dictionaries use more flags and have longer stems. But as discussed above, every time we use a short variant of an Umbra slice we save memory over a <code>Box&lt;str&gt;</code> or <code>Box&lt;[Flag]&gt;</code>.</p>
+<h1 id="wrapping-up-kudos"><a class="zola-anchor" href="#wrapping-up-kudos" aria-label="Anchor link for: wrapping-up-kudos">Wrapping up &amp; Kudos</a></h1>
+<p>We've designed and implemented a German string inspired <code>UmbraSlice&lt;T&gt;</code> type that can carry a small number of <code>T</code>s inline - a small <em>slice</em> optimization - and used it to save a respectable amount of total memory for the <code>Dictionary</code> type, and also cut way down on heap interaction. We've also stumbled upon lots of interesting detours into Rust topics: fat pointers, runtime memory measurement, <code>MaybeUninit&lt;T&gt;</code> and the null-pointer optimization. The full code for <code>UmbraSlice&lt;T&gt;</code> lives in Spellbook's repository in <a href="https://github.com/helix-editor/spellbook/blob/master/src/umbra_slice.rs"><code>src/umbra_slice.rs</code></a>.</p>
+<p>As mentioned above, CedarDB has an excellent <a href="https://cedardb.com/blog/german_strings/">intro post for German strings</a> and also a nice <a href="https://cedardb.com/blog/strings_deep_dive/">deeper dive</a>. The former has a snide remark about an optimization which is supposedly impossible in Rust, provoking interesting response posts by those who had been successfully nerd-sniped. One of these - <a href="https://tunglevo.com/note/an-optimization-thats-impossible-in-rust/">An Optimization That's Impossible in Rust!</a> - I found very informative on the Rust aspects of implementing German strings, and may be interesting if your use-case benefits from <code>Clone for UmbraString</code> being cheap like <code>Clone for Arc</code>. (Not so for Spellbook.) Thank you to these authors!</p>
+
+        </section>
+    </article>
+</main>
+
+
+
+        
+            
+        
+
+        
+    </div>
+</body>
+
+</html>
