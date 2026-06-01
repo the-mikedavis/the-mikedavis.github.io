@@ -25,7 +25,7 @@ This is useful in a few situations. Concurrent reads need no locking: hand out r
 
 HAMTs are the hash map implementation in several functional programming languages.
 
-Erlang has used a HAMT for its built-in map type since OTP 17 (2014). The BEAM VM's concurrency model sends data between processes as values with no shared mutable state, which fits a persistent data structure well: hand a reference to the current map to any number of processes and none of them can affect the others. Elixir's `Map` type is the same underlying structure; Elixir runs on BEAM and shares Erlang's data types.
+Erlang has used a HAMT for its built-in map type since OTP 17 (2014). Erlang and Elixir are functional languages: values are immutable, and modifying a map produces a new version rather than mutating the old one. A HAMT makes that cheap - only the nodes on the modified path are newly allocated, and the rest is shared with the previous version. Elixir's `Map` type is the same underlying structure; Elixir runs on BEAM and shares Erlang's data types.
 
 It's worth knowing that BEAM maps aren't always HAMTs. Maps with 32 or fewer elements are stored as _flat maps_: a sorted array of key-value pairs. Flat maps are faster for small collections since there's no trie to navigate - lookups are a binary search. Only once a map grows past 32 elements does BEAM promote it to a HAMT. Most Erlang and Elixir developers don't think about this distinction day-to-day, but it has observable consequences: flat map iteration is sorted by key, while HAMT iteration follows hash order.
 
@@ -33,7 +33,7 @@ Clojure's [`PersistentHashMap`](https://github.com/clojure/clojure/blob/master/s
 
 ### Iteration order
 
-A property of HAMTs that is easy to overlook: iteration order is determined entirely by the hash function, not by insertion order. In an open-addressing hash table, inserting key A before key B can leave them in different slots than inserting B first, because collision probe sequences depend on what is already in the table. A HAMT has no such dependency - each key's position in the trie is set by its hash bits alone. Two maps built from the same set of keys always produce the same trie structure, regardless of insertion order.
+A useful (and hazardous) property of HAMTs is that iteration order is determined entirely by the hash function, not by insertion order. In an open-addressing hash table, inserting key A before key B can leave them in different slots than inserting B first, because collision probe sequences depend on what is already in the table. A HAMT has no such dependency - each key's position in the trie is set by its hash bits alone. Two maps built from the same set of keys always produce the same trie structure, regardless of insertion order.
 
 This sounds like a useful guarantee, but languages are careful not to promise it. The hash function can change between releases, and when it does, iteration order changes with it. Erlang's internal map hash has been replaced more than once: from a variant of Bob Jenkins' classic hash, to CRC32-C, to the current MurmurHash3. Each switch reshuffled ordering and ordering changes could cause subtle bugs in Erlang applications.
 
